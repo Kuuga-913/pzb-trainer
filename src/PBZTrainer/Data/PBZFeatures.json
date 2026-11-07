@@ -1,0 +1,778 @@
+[
+  {
+    "id": "invincible",
+    "title": "无敌",
+    "page": "战斗与生存",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "combat"
+  },
+  {
+    "id": "health",
+    "title": "无限生命",
+    "page": "战斗与生存",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "refill",
+    "attribute": "Health",
+    "maximum": "Health_Max"
+  },
+  {
+    "id": "heal",
+    "title": "满血应用",
+    "page": "战斗与生存",
+    "kind": "apply",
+    "value": 1,
+    "binding": "heal"
+  },
+  {
+    "id": "auto_heal",
+    "title": "低血量自动回满（%）",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 30,
+    "binding": "threshold_heal",
+    "attribute": "Health",
+    "maximum": "Health_Max"
+  },
+  {
+    "id": "damage_taken",
+    "title": "受到伤害倍率",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 1,
+    "binding": "attribute",
+    "attributes": [
+      "TakenVulnerabilityMultiplier_Physical",
+      "TakenVulnerabilityMultiplier_PhysicalSharp",
+      "TakenVulnerabilityMultiplier_PhysicalBlunt",
+      "TakenVulnerabilityMultiplier_Elemental",
+      "TakenVulnerabilityMultiplier_Fire",
+      "TakenVulnerabilityMultiplier_Toxin",
+      "TakenVulnerabilityMultiplier_Ice",
+      "TakenVulnerabilityMultiplier_Aqua",
+      "TakenVulnerabilityMultiplier_Lightning",
+      "TakenVulnerabilityMultiplier_Blood",
+      "TakenVulnerabilityMultiplier_Chaos"
+    ],
+    "op": 1
+  },
+  {
+    "id": "damage",
+    "title": "伤害倍率",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 2,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_Physical",
+      "DealtVulnerabilityMultiplier_PhysicalSharp",
+      "DealtVulnerabilityMultiplier_PhysicalBlunt",
+      "DealtVulnerabilityMultiplier_Elemental",
+      "DealtVulnerabilityMultiplier_Fire",
+      "DealtVulnerabilityMultiplier_Toxin",
+      "DealtVulnerabilityMultiplier_Ice",
+      "DealtVulnerabilityMultiplier_Aqua",
+      "DealtVulnerabilityMultiplier_Lightning",
+      "DealtVulnerabilityMultiplier_Blood",
+      "DealtVulnerabilityMultiplier_Chaos"
+    ],
+    "op": 1
+  },
+  {
+    "id": "one_hit",
+    "title": "秒杀",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 100000,
+    "binding": "attribute",
+    "attributes": [
+      "Attack"
+    ],
+    "op": 3
+  },
+  {
+    "id": "poise",
+    "title": "抗硬直／霸体",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 0,
+    "binding": "attribute",
+    "attributes": [
+      "TakenReductionMultiplier_Poise"
+    ],
+    "op": 3
+  },
+  {
+    "id": "clear_status",
+    "title": "一键清除负面积累",
+    "page": "战斗与生存",
+    "kind": "apply",
+    "value": 1,
+    "binding": "clear_status"
+  },
+  {
+    "id": "status_immune",
+    "title": "异常积累免疫",
+    "page": "战斗与生存",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "zero_attributes",
+    "attributes": [
+      "Ignite_Accumulation",
+      "Poison_Accumulation",
+      "Frost_Accumulation",
+      "Thunder_Accumulation",
+      "Electrified_Accumulation",
+      "Bleed_Accumulation",
+      "BloodBurst_Accumulation",
+      "Water_Accumulation"
+    ]
+  },
+  {
+    "id": "shachi",
+    "title": "无限杀气",
+    "page": "杀气与绝技",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "refill",
+    "attribute": "Shachi",
+    "maximum": "Shachi_Max"
+  },
+  {
+    "id": "shachi_regen",
+    "title": "杀气恢复倍率",
+    "page": "杀气与绝技",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "ShachiRegen"
+    ],
+    "op": 1
+  },
+  {
+    "id": "heavy_no_cost",
+    "title": "重攻击不消耗杀气",
+    "page": "杀气与绝技",
+    "kind": "toggleValue",
+    "value": 1,
+    "binding": "attribute",
+    "attributes": [
+      "HeavyAttack_ShachiCostReduction"
+    ],
+    "op": 3
+  },
+  {
+    "id": "block_no_cost",
+    "title": "格挡不消耗杀气",
+    "page": "杀气与绝技",
+    "kind": "toggleValue",
+    "value": 0,
+    "binding": "attribute",
+    "attributes": [
+      "TakenReductionMultiplier_DefenceShachi"
+    ],
+    "op": 3
+  },
+  {
+    "id": "ultimate",
+    "title": "无限精纯杀气",
+    "page": "杀气与绝技",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "resource_ultimate"
+  },
+  {
+    "id": "ultimate_gain",
+    "title": "精纯杀气积累倍率",
+    "page": "杀气与绝技",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "resource_gain"
+  },
+  {
+    "id": "ultimate_no_cost",
+    "title": "绝技不消耗精纯杀气",
+    "page": "杀气与绝技",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "resource_keep_ultimate"
+  },
+  {
+    "id": "shadow_no_cost",
+    "title": "影之武装使用不消耗",
+    "page": "杀气与绝技",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "resource_keep_shadow"
+  },
+  {
+    "id": "shadow_refill",
+    "title": "一键补满武装资源",
+    "page": "杀气与绝技",
+    "kind": "apply",
+    "value": 1,
+    "binding": "resource_refill_shadow"
+  },
+  {
+    "id": "potions_no_cost",
+    "title": "药剂次数不减",
+    "page": "资源与消耗",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "consume",
+    "method": "UseMedicine",
+    "argument": "Num"
+  },
+  {
+    "id": "potions_refill",
+    "title": "一键补满药剂",
+    "page": "资源与消耗",
+    "kind": "apply",
+    "value": 1,
+    "binding": "call",
+    "method": "RestoreQuickItems"
+  },
+  {
+    "id": "consumables_no_cost",
+    "title": "普通消耗品使用不减",
+    "page": "资源与消耗",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "consumable"
+  },
+  {
+    "id": "dust_gain",
+    "title": "养成货币获取倍率",
+    "page": "资源与消耗",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "MindDustAdditiveMultiplier"
+    ],
+    "op": 1
+  },
+  {
+    "id": "dust_set",
+    "title": "自定义意识尘埃",
+    "page": "战斗与生存",
+    "kind": "applyValue",
+    "value": 1000,
+    "binding": "dust",
+    "description": "设置意识尘埃目标总量（0至100000000）；点击应用后读取实际数量，不是增加数量。"
+  },
+  {
+    "id": "large_memory_flower_set",
+    "title": "自定义大型记忆之花",
+    "page": "战斗与生存",
+    "kind": "applyValue",
+    "value": 1,
+    "binding": "large_memory_flower",
+    "description": "补齐至目标已获得数量（当前游戏共10朵）。通过真实花瓣合成，增加记忆收集进度并由游戏赋予生命加成；不倒扣已获得数量。应用后重新打开能力页面查看。"
+  },
+  {
+    "id": "move_speed",
+    "title": "移动速度倍率",
+    "page": "速度与冷却",
+    "kind": "toggleValue",
+    "value": 1.5,
+    "binding": "attribute",
+    "attributes": [
+      "WalkSpeed",
+      "JogSpeed",
+      "SprintSpeed",
+      "CrouchSpeed"
+    ],
+    "op": 1
+  },
+  {
+    "id": "attack_speed",
+    "title": "攻击动作速度",
+    "page": "速度与冷却",
+    "kind": "toggleValue",
+    "value": 1.5,
+    "binding": "mesh",
+    "field": "GlobalAnimRateScale"
+  },
+  {
+    "id": "game_speed",
+    "title": "游戏速度",
+    "page": "速度与冷却",
+    "kind": "toggleValue",
+    "value": 1,
+    "binding": "game_speed",
+    "description": "0.5为半速，1为正常；修改数值后点应用。关闭开关恢复本次连接前的速度。"
+  },
+  {
+    "id": "enemy_speed",
+    "title": "敌人速度",
+    "page": "速度与冷却",
+    "kind": "toggleValue",
+    "value": 0.5,
+    "binding": "enemy_speed"
+  },
+  {
+    "id": "never_break",
+    "title": "玩家不被破防",
+    "page": "破防与处决",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "combat"
+  },
+  {
+    "id": "shachi_damage",
+    "title": "敌人杀气削减倍率",
+    "page": "破防与处决",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_ImpactShachi",
+      "DealtVulnerabilityMultiplier_ReflectShachi",
+      "DealtVulnerabilityMultiplier_DefenceShachi"
+    ],
+    "op": 1
+  },
+  {
+    "id": "fast_break",
+    "title": "快速破防",
+    "page": "破防与处决",
+    "kind": "toggleValue",
+    "value": 100000,
+    "binding": "enemy_attribute",
+    "op": 3,
+    "attribute": "TakenVulnerabilityMultiplier_ImpactShachi"
+  },
+  {
+    "id": "target_shachi_clear",
+    "title": "清空锁定目标杀气",
+    "page": "破防与处决",
+    "kind": "apply",
+    "value": 1,
+    "binding": "target_clear"
+  },
+  {
+    "id": "enemy_regen",
+    "title": "敌人杀气恢复倍率",
+    "page": "破防与处决",
+    "kind": "toggleValue",
+    "value": 0,
+    "binding": "enemy_attribute",
+    "attribute": "ShachiRegen"
+  },
+  {
+    "id": "break_duration",
+    "title": "敌人破防持续增幅",
+    "page": "破防与处决",
+    "kind": "toggleValue",
+    "value": 2,
+    "binding": "enemy_attribute",
+    "attribute": "BreakDurationAdditionalMultiplier",
+    "op": 3
+  },
+  {
+    "id": "execution_threshold",
+    "title": "处决生命阈值",
+    "page": "破防与处决",
+    "kind": "toggleValue",
+    "value": 1,
+    "binding": "attribute",
+    "attributes": [
+      "ExecutionExecutorNormalHealthThreshold",
+      "ExecutionExecutorBreakHealthThreshold"
+    ],
+    "op": 3
+  },
+  {
+    "id": "bleed_buildup",
+    "title": "出血积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_BleedAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "bleed_strength",
+    "title": "出血效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_Bleed"
+    ],
+    "op": 1
+  },
+  {
+    "id": "ignite_buildup",
+    "title": "灼烧积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_IgniteAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "ignite_strength",
+    "title": "灼烧效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_Ignite"
+    ],
+    "op": 1
+  },
+  {
+    "id": "poison_buildup",
+    "title": "中毒积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_PoisonAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "poison_strength",
+    "title": "中毒效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_Poison"
+    ],
+    "op": 1
+  },
+  {
+    "id": "frost_buildup",
+    "title": "冰冻积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_FrostAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "frost_strength",
+    "title": "冰冻效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_Frost"
+    ],
+    "op": 1
+  },
+  {
+    "id": "electrified_buildup",
+    "title": "感电积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_ElectrifiedAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "electrified_strength",
+    "title": "感电效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_Electrified"
+    ],
+    "op": 1
+  },
+  {
+    "id": "bloodburst_buildup",
+    "title": "血爆积累倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "DealtVulnerabilityMultiplier_BloodBurstAccumulation"
+    ],
+    "op": 1
+  },
+  {
+    "id": "bloodburst_strength",
+    "title": "血爆效果增幅",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "attribute",
+    "attributes": [
+      "Amplification_BloodBurst"
+    ],
+    "op": 1
+  },
+  {
+    "id": "fly",
+    "title": "飞天",
+    "page": "飞行与穿墙",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "flight"
+  },
+  {
+    "id": "flight_speed",
+    "title": "飞行速度",
+    "page": "飞行与穿墙",
+    "kind": "applyValue",
+    "value": 800,
+    "binding": "flight_speed"
+  },
+  {
+    "id": "noclip",
+    "title": "穿墙／无碰撞移动",
+    "page": "飞行与穿墙",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "noclip"
+  },
+  {
+    "id": "safe_return",
+    "title": "关闭并返回安全位置",
+    "page": "飞行与穿墙",
+    "kind": "apply",
+    "value": 1,
+    "binding": "safe_return"
+  },
+  {
+    "id": "height",
+    "title": "移动高度调整",
+    "page": "飞行与穿墙",
+    "kind": "applyValue",
+    "value": 100,
+    "binding": "height"
+  },
+  {
+    "id": "death_keep",
+    "title": "死亡不扣次数",
+    "page": "六十六天模式",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "death_keep"
+  },
+  {
+    "id": "cycle_set",
+    "title": "周目修改",
+    "page": "六十六天模式",
+    "kind": "applyValue",
+    "value": 1,
+    "binding": "cycle"
+  },
+  {
+    "id": "difficulty_set",
+    "title": "模式切换",
+    "page": "六十六天模式",
+    "kind": "applyValue",
+    "value": 0,
+    "binding": "difficulty"
+  },
+  {
+    "id": "days_set",
+    "title": "自定义剩余次数",
+    "page": "六十六天模式",
+    "kind": "applyValue",
+    "value": 66,
+    "binding": "days"
+  },
+  {
+    "id": "fall_damage",
+    "title": "坠落伤害免疫",
+    "page": "战斗与生存",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "combat",
+    "description": "使用游戏原生坠落免疫状态，关闭后恢复；不改变落差伤害计算区间。"
+  },
+  {
+    "id": "deflect_window",
+    "title": "完美格挡窗口（秒）",
+    "page": "格挡与鬼步",
+    "kind": "toggleValue",
+    "value": 0.5,
+    "binding": "combat"
+  },
+  {
+    "id": "parry_window",
+    "title": "招架判定窗口（秒）",
+    "page": "格挡与鬼步",
+    "kind": "toggleValue",
+    "value": 0.5,
+    "binding": "combat"
+  },
+  {
+    "id": "auto_deflect",
+    "title": "自动完美格挡",
+    "page": "格挡与鬼步",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "combat"
+  },
+  {
+    "id": "auto_dodge",
+    "title": "自动完美闪避",
+    "page": "格挡与鬼步",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "combat"
+  },
+  {
+    "id": "dodge_window",
+    "title": "闪避无敌窗口（秒）",
+    "page": "格挡与鬼步",
+    "kind": "toggleValue",
+    "value": 0.5,
+    "binding": "combat"
+  },
+  {
+    "id": "skill_cooldown",
+    "title": "技能冷却补充倍率",
+    "page": "速度与冷却",
+    "kind": "toggleValue",
+    "value": 5,
+    "binding": "ability_cooldown"
+  },
+  {
+    "id": "shadow_switch_cooldown",
+    "title": "影之武装切换无冷却",
+    "page": "速度与冷却",
+    "kind": "toggle",
+    "value": 0,
+    "binding": "owned_field",
+    "class": "GA_ChangeShachiWeapon_C",
+    "field": "Cooldown"
+  },
+  {
+    "id": "ignite_duration",
+    "title": "灼烧持续时间（秒）",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 10,
+    "binding": "owned_field",
+    "class": "GA_CommonUtilitiesPassiveBase",
+    "field": "IgniteDuration",
+    "target": "enemy"
+  },
+  {
+    "id": "ignite_rate",
+    "title": "灼烧结算间隔（秒）",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 0.2,
+    "binding": "owned_field",
+    "class": "GA_CommonUtilitiesPassiveBase",
+    "field": "IgniteTickRate",
+    "target": "enemy"
+  },
+  {
+    "id": "bleed_chance",
+    "title": "出血触发概率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 1,
+    "binding": "owned_field",
+    "class": "GA_CommonUtilitiesPassiveBase",
+    "field": "BleedChance",
+    "target": "enemy"
+  },
+  {
+    "id": "bleed_damage",
+    "title": "出血伤害倍率",
+    "page": "异常与持续伤害",
+    "kind": "toggleValue",
+    "value": 3,
+    "binding": "owned_field",
+    "class": "GA_CommonUtilitiesPassiveBase",
+    "field": "BleedDamageMultiplier",
+    "target": "enemy"
+  },
+  {
+    "id": "area_bells",
+    "page": "地图与收集",
+    "kind": "apply",
+    "value": 1,
+    "binding": "collection_batch",
+    "title": "一键解锁区域地图所有铃铛点",
+    "description": "激活角色当前所在区域的铃铛，逐点核对原生激活记录。"
+  },
+  {
+    "id": "all_maps",
+    "page": "地图与收集",
+    "kind": "apply",
+    "value": 1,
+    "binding": "collection_batch",
+    "title": "一键解锁全域地图所有地图",
+    "description": "解锁全域概览中的区域入口，每个区域保留一处可用铃铛；执行后重新打开游戏地图。"
+  },
+  {
+    "id": "all_memory_flowers",
+    "title": "一键补满所有记忆之花",
+    "page": "地图与收集",
+    "kind": "apply",
+    "value": 1,
+    "binding": "collection_batch",
+    "description": "按游戏原生顺序补齐缺失花瓣并合成全部记忆之花；会改变收集进度与属性加成。"
+  },
+  {
+    "id": "medicine_infinite",
+    "title": "无限药品",
+    "page": "战斗与生存",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "medicine_infinite",
+    "description": "持续补满已获得药品的使用次数。"
+  },
+  {
+    "id": "medicine_count",
+    "title": "自定义药品次数",
+    "page": "战斗与生存",
+    "kind": "applyValue",
+    "value": 10,
+    "binding": "medicine_count",
+    "description": "设置已获得药品的剩余次数，应用后回读；不会添加未获得的药品。"
+  },
+  {
+    "id": "medicine_duration",
+    "title": "自定义药品持续时间（秒）",
+    "page": "战斗与生存",
+    "kind": "toggleValue",
+    "value": 60,
+    "binding": "medicine_duration",
+    "description": "调整用药后状态图标的增益倒计时，当前与后续用药均生效，倒计时正常递减；瞬时回血不受影响。关闭后按原时长扣除已流逝时间。"
+  },
+  {
+    "id": "auto_qte",
+    "title": "自动 QTE",
+    "page": "格挡与鬼步",
+    "kind": "toggle",
+    "value": 1,
+    "binding": "auto_qte",
+    "description": "自动处理当前玩家的原生按键、连按及长按 QTE，剧情中也生效。"
+  }
+]

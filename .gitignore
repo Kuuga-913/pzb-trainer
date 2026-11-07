@@ -1,0 +1,16 @@
+# 构建产物
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+
+# 需要自备、不纳入版本管理的文件
+src/PBZTrainer/PBZBridge.dll
+PBZBridge.dll
+src/PBZTrainer/Data/PBZCatalog.json
+
+# 本地运行产物
+*.log
+crash.log
