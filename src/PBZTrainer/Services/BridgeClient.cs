@@ -81,7 +81,7 @@ namespace PBZTrainer.Services
                 {
                     if (!allowInject) throw new InvalidOperationException("游戏接口尚未就绪");
                     string dll = Injector.ResolveBridgePath();
-                    if (dll == null) throw new FileNotFoundException("组件文件缺失，请重新下载完整程序");
+                    if (dll == null) throw new FileNotFoundException("缺少游戏组件 PBZBridge.dll：请把它放到本程序同目录，或设置环境变量 PBZ_BRIDGE 指向它");
                     log?.Invoke("注入组件：" + dll);
                     long handle = await Task.Run(() => Injector.Inject(game.Pid, dll));
                     log?.Invoke("组件已加载 0x" + handle.ToString("X"));

@@ -114,6 +114,53 @@ namespace PBZTrainer.Views
 
         // ---------- 连接 ----------
 
+        private bool _bridgePrompted;
+
+        /// <summary>缺少游戏组件时，让用户选一次并自动复制到程序目录。</summary>
+        private bool EnsureBridgeComponent()
+        {
+            if (Injector.ResolveBridgePath() != null) return true;
+            if (_bridgePrompted) return false;
+            _bridgePrompted = true;
+
+            var owner = Window.GetWindow(this);
+            var ask = owner != null
+                ? MessageBox.Show(owner,
+                    "还差一个游戏组件：PBZBridge.dll\n\n" +
+                    "它在你安装的原修改器目录里（或游戏目录）。\n" +
+                    "点「确定」选择这个文件，程序会自动复制一份到本程序旁边，以后不用再选。\n\n" +
+                    "如果暂时没有，也可以稍后手动把 PBZBridge.dll 放到 PBZTrainer.exe 同目录。",
+                    "选择 PBZBridge.dll", MessageBoxButton.OKCancel, MessageBoxImage.Information)
+                : MessageBox.Show(
+                    "还差一个游戏组件：PBZBridge.dll\n\n请把它放到 PBZTrainer.exe 同目录。",
+                    "选择 PBZBridge.dll", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+            if (ask != MessageBoxResult.OK) return false;
+
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "选择 PBZBridge.dll",
+                Filter = "游戏组件 (PBZBridge.dll)|PBZBridge.dll|所有 DLL|*.dll",
+                CheckFileExists = true
+            };
+            bool? picked = owner != null ? dlg.ShowDialog(owner) : dlg.ShowDialog();
+            if (picked != true) return false;
+
+            try
+            {
+                string dest = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Injector.BridgeFileName);
+                System.IO.File.Copy(dlg.FileName, dest, true);
+                ShowToast("游戏组件已就位");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(owner ?? (Window)this,
+                    "复制失败：" + ex.Message + "\n\n可以手动把 PBZBridge.dll 放到程序目录。",
+                    "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+        }
+
         private async Task AutoConnectAsync()
         {
             if (_connecting) return;
@@ -123,6 +170,13 @@ namespace PBZTrainer.Views
                 SetStatus("正在连接", "#D9A441", "◌");
                 ConnectButton.Content = "连接中…";
                 ConnectButton.IsEnabled = false;
+
+                if (!EnsureBridgeComponent())
+                {
+                    SetStatus("未找到游戏组件", "#D9A441", "!");
+                    ConnectButton.Content = "连接游戏";
+                    return;
+                }
 
                 bool ok = await _bridge.ConnectAsync(true, m => Dispatcher.Invoke(() => SetStatus(m, "#8C8390", "◌")));
                 if (ok)

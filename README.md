@@ -9,6 +9,17 @@
 
 ![截图](assets/screenshot.png)
 
+## 下载
+
+到 [Releases](https://github.com/Kuuga-913/pzb-trainer/releases/latest) 下载成品（Windows x64，免安装）：
+
+| 文件 | 说明 |
+|---|---|
+| **PBZTrainer-v1.0.0-win-x64.zip**（推荐） | 解压即用，含主程序与两份说明 |
+| `PBZTrainer-v1.0.0.exe` | 单文件版，与包内主程序相同 |
+
+首次运行若提示缺少游戏组件 `PBZBridge.dll`，按弹窗选中该文件即可——程序会自动复制一份到自己旁边，之后不再询问（该组件不随仓库分发，详见下文）。
+
 ## 快速开始
 
 1. 先启动游戏，进入存档、能自由行动。
