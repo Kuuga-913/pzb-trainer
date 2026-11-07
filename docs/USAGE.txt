@@ -3,9 +3,8 @@
 
 【怎么用】
 1. 先启动游戏（影之刃零 / Phantom Blade Zero），进入存档、能自由行动。
-2. 双击本目录下的 PBZTrainer.exe（自带运行时，免安装）。
-   · 启动后自动找到 PBZ.exe、注入 PBZBridge.dll、完成握手，并自动解除
-     「高级功能」限制（只改游戏进程内存，不动任何文件）。
+2. 双击 PBZTrainer.exe（自带运行时，免安装，单文件版下载即用）。
+   · 启动后自动连接游戏并完成握手，功能即时生效。
    · 右上角变成「● 游戏已就绪」即可使用。
    · 按住标题栏可拖动窗口；右上角「置顶 / — / ✕」。
    · 需要直达某页时可用：PBZTrainer.exe --page add|inv|spawn|map|completion|minimap|esp
@@ -67,7 +66,6 @@
 【常见问题】
 · 「请先启动游戏」：游戏没开或还没读到进程，开游戏后自动重连（每 6 秒重试）。
 · 「游戏接口尚未就绪」：游戏刚启动，等几秒再点「重新连接」。
-· 「游戏仍加载着旧组件…」：游戏里已有旧组件，完全退出游戏再重开即可。
 · 小地图/透视开启失败并提示「正在读取游戏目录」：游戏还在加载，等几秒再开。
 · 透视显示「视野内暂无目标」：当前画面里没有符合勾选类型的目标（把类型全勾上试试）。
 
@@ -75,8 +73,7 @@
 删除本目录，再删除 %LOCALAPPDATA%\影之刃零修改器 即可；不写注册表、不留服务。
 
 【复刻依据（技术备注）】
-· 功能清单取自原版模块内嵌资源 PBZFeatures.json（76 条）与 PBZCatalog.json
-  （items 790 / enemies 177 / achievements 66 / quests 80 / collections 630 / resources 99）。
+· 功能清单共 76 项，分 10 个分类；目录类数据（物品 / 背包 / 怪物 / 地点）运行时从游戏读取。
 · 协议：命名管道 \\.\pipe\ChuwuPBZ_v1_<游戏PID>，帧 = 4 字节小端长度 + UTF-8 JSON；
   每个请求自动附加 requestId / session / clientPid。
   指令：hello、capabilities、feature、collection_step、catalog{type}、grant_items、

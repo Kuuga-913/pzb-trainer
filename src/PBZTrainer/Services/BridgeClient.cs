@@ -120,9 +120,9 @@ namespace PBZTrainer.Services
                 if (Int(hello["pid"]) != game.Pid) throw new InvalidOperationException("目标进程不匹配");
                 if (Int(hello["protocol"]) != Protocol) throw new InvalidOperationException("游戏接口版本不同，请重启游戏后再连接");
                 string buildId = Str(hello["buildId"]);
-                if (buildId != BuildId) throw new InvalidOperationException("游戏中的组件版本不同，请重启游戏后再连接");
+                if (buildId != BuildId) throw new InvalidOperationException("游戏版本与本程序不匹配，请使用与该游戏版本对应的程序");
                 string gameId = Str(hello["gameId"]);
-                if (gameId != GameId) throw new InvalidOperationException("游戏中的组件版本不同，请重启游戏后再连接");
+                if (gameId != GameId) throw new InvalidOperationException("游戏版本与本程序不匹配，请使用与该游戏版本对应的程序");
 
                 State = BridgeState.Connected;
                 LastMessage = Str(hello["message"]) ?? "已连接";
@@ -146,7 +146,7 @@ namespace PBZTrainer.Services
         {
             if (ex is FileNotFoundException fnf) return fnf.Message;
             if (ex is TimeoutException) return "游戏接口尚未就绪";
-            if (ex is IOException) return "游戏仍加载着旧组件或正被另一个窗口占用。请关闭旧修改器；更新组件后需重启游戏一次";
+            if (ex is IOException) return "游戏侧暂未就绪，或正被另一个程序占用。请关闭其他修改器窗口后重启游戏一次";
             if (ex is UnauthorizedAccessException) return "访问游戏进程，请保持相同运行权限";
             return string.IsNullOrWhiteSpace(ex.Message) ? "连接失败，请重试" : ex.Message;
         }

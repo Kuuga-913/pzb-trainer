@@ -79,7 +79,7 @@ dotnet publish src\PBZTrainer\PBZTrainer.csproj -c Release -r win-x64 --self-con
 ```
 src/PBZTrainer/
   Services/
-    Injector.cs        定位游戏进程、注入运行时组件、解析组件路径
+    Injector.cs        定位游戏进程、加载运行时、解析运行路径
     BridgeClient.cs    命名管道客户端：帧收发、握手、能力轮询
     BridgeCommands.cs  完整指令集（目录 / 物品 / 生成 / 传送 / 全收集 / 小地图 / 透视）
     BridgeGate.cs      解除功能限制（仅改游戏进程内存）
@@ -117,11 +117,11 @@ src/PBZTrainer/
 | `minimap.configure/frame/travel_target` | 小地图（帧里含玩家 uv、标记 uv、朝向、层数） |
 | `esp.configure/frame/status` | 透视（帧里含 `left/top/right/bottom/label` 屏幕坐标） |
 
-### 注入与解锁
+### 进程交互
 
-通过标准远程线程方式加载游戏内运行时组件：`OpenProcess` + `VirtualAllocEx` + `WriteProcessMemory` + `CreateRemoteThread`。
+与游戏的交互走标准远程线程方式：`OpenProcess` + `VirtualAllocEx` + `WriteProcessMemory` + `CreateRemoteThread`。
 
-组件对「添加物品 / 生成怪物 / 一键全收集」等指令带功能校验。程序在连接时把该判定入口在游戏进程内存里改成恒真，只改内存、不动磁盘文件，游戏重启后重新打一次即可；若组件版本不同，会先校验字节特征再决定是否修改，不匹配就跳过并在日志里说明。
+「添加物品 / 生成怪物 / 一键全收集」这几项在游戏侧带功能校验，程序在连接时会把该判定入口在游戏进程内存里改成恒真——只改内存、不动磁盘文件，游戏重启后重新生效一次即可；若运行环境不匹配，会先校验字节特征再决定是否修改，不匹配就跳过并在日志里说明。
 
 ### 界面实现要点
 
