@@ -13,6 +13,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
     <Version>1.0.0</Version>
+    <!-- 可选：把游戏组件打进 exe（发布单文件版用）。默认不打包。 -->
+    <EmbedBridge Condition="'$(EmbedBridge)' == ''">false</EmbedBridge>
+    <BridgeDll Condition="'$(BridgeDll)' == ''">$(MSBuildThisFileDirectory)Data\PBZBridge.dll</BridgeDll>
     <Product>影之刃零修改器</Product>
     <Company>初五助手</Company>
   </PropertyGroup>
@@ -20,6 +23,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Data\PBZFeatures.json" />
     <EmbeddedResource Include="Data\PBZCatalog.json" Condition="Exists('Data\PBZCatalog.json')" />
+    <EmbeddedResource Include="$(BridgeDll)" LogicalName="PBZBridge.dll"
+                      Condition="'$(EmbedBridge)' == 'true' And Exists('$(BridgeDll)')" />
   </ItemGroup>
 
 </Project>

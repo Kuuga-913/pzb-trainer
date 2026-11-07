@@ -1,8 +1,9 @@
 using System;
 using System.Diagnostics;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace PBZTrainer.Services
 {
@@ -94,6 +95,10 @@ namespace PBZTrainer.Services
         /// </summary>
         public static string ResolveBridgePath()
         {
+            // 0) 如果发布时把组件打进了 exe，先释放到本地缓存再用
+            string embedded = TryExtractEmbeddedBridge();
+            if (embedded != null) return embedded;
+
             string fromEnv = Environment.GetEnvironmentVariable("PBZ_BRIDGE");
             if (!string.IsNullOrWhiteSpace(fromEnv) && File.Exists(fromEnv)) return fromEnv;
 
@@ -118,6 +123,47 @@ namespace PBZTrainer.Services
                 catch { }
             }
             return null;
+        }
+
+        private static string _extractedBridge;
+
+        /// <summary>
+        /// 若 exe 内嵌了 PBZBridge.dll，按内容哈希释放到
+        /// %LOCALAPPDATA%\影之刃零修改器\components\&lt;hash&gt;\ 下并返回路径；没内嵌则返回 null。
+        /// 同一版本只写一次，之后直接复用。
+        /// </summary>
+        public static string TryExtractEmbeddedBridge()
+        {
+            if (_extractedBridge != null) return _extractedBridge;
+
+            try
+            {
+                var asm = Assembly.GetExecutingAssembly();
+                using var stream = asm.GetManifestResourceStream(BridgeFileName);
+                if (stream == null) return null;
+
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                byte[] bytes = ms.ToArray();
+                if (bytes.Length == 0) return null;
+
+                string hash = Convert.ToHexString(SHA256.HashData(bytes)).Substring(0, 16).ToLowerInvariant();
+                string dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "影之刃零修改器", "components", hash);
+                Directory.CreateDirectory(dir);
+
+                string path = Path.Combine(dir, BridgeFileName);
+                if (!File.Exists(path) || new FileInfo(path).Length != bytes.Length)
+                    File.WriteAllBytes(path, bytes);
+
+                _extractedBridge = path;
+                return path;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>把 DLL 注入目标进程，返回模块基址；失败抛异常并带中文原因。</summary>

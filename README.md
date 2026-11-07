@@ -15,10 +15,12 @@
 
 | 文件 | 说明 |
 |---|---|
-| **PBZTrainer-v1.0.0-win-x64.zip**（推荐） | 解压即用，含主程序与两份说明 |
-| `PBZTrainer-v1.0.0.exe` | 单文件版，与包内主程序相同 |
+| **PBZTrainer-v1.0.1-win-x64.exe**（最省事） | 单文件，**组件已内置**，下载双击即用 |
+| PBZTrainer-v1.0.0-win-x64.zip | 不含组件，解压后需自备一次 `PBZBridge.dll` |
+| PBZTrainer-v1.0.0.exe | 同上，单文件版 |
 
-首次运行若提示缺少游戏组件 `PBZBridge.dll`，按弹窗选中该文件即可——程序会自动复制一份到自己旁边，之后不再询问（该组件不随仓库分发，详见下文）。
+内置组件版首次运行会把组件释放到 `%LOCALAPPDATA%\影之刃零修改器\components\<哈希>\`，之后复用；
+不内置的版本第一次启动会弹窗让你选一次 `PBZBridge.dll`，程序自动复制到自己旁边（详见下文）。
 
 ## 快速开始
 
@@ -51,7 +53,18 @@ dotnet publish src\PBZTrainer\PBZTrainer.csproj -c Release -r win-x64 --self-con
   -p:EnableCompressionInSingleFile=true -p:DebugType=none -o out
 ```
 
-产物 `out\PBZTrainer.exe` 约 66 MB，单文件、免安装。不带 `PBZCatalog.json` 也能编译，只是「一键全收集」的结果弹窗里显示 id 而不是中文名（可选：把该文件放进 `src/PBZTrainer/Data/` 再编译）。
+产物 `out\PBZTrainer.exe` 约 66 MB，单文件、免安装。
+
+想把组件一起打进 exe（得到一个开箱即用的单文件）：
+
+```bat
+dotnet publish src\PBZTrainer\PBZTrainer.csproj -c Release -r win-x64 --self-contained true ^
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
+  -p:EnableCompressionInSingleFile=true -p:DebugType=none ^
+  -p:EmbedBridge=true -p:BridgeDll="路径\PBZBridge.dll" -o out
+```
+
+这样运行时会把内嵌组件释放到本地缓存再注入。不带 `PBZCatalog.json` 也能编译，只是「一键全收集」的结果弹窗里显示 id 而不是中文名（可选：把该文件放进 `src/PBZTrainer/Data/` 再编译）。
 
 ## 目录结构
 
