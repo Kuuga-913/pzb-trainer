@@ -31,6 +31,8 @@ namespace PBZTrainer.Views
         public string EmptyHint = "目录为空：请先进入可操作场景后点「刷新」";
         /// <summary>可选：自定义状态列渲染（默认读 completed / state / owned）。</summary>
         public Func<JsonObject, string> StateReader;
+        /// <summary>可选：不用游戏目录，直接给一份本地数据（例如内置属性表）。</summary>
+        public Func<List<CatalogRow>> LocalRows;
     }
 
     /// <summary>通用动作页：左侧目录列表，右侧详情 + 操作按钮 + 日志。</summary>
@@ -200,6 +202,14 @@ namespace PBZTrainer.Views
             _count.Text = "正在读取…";
             try
             {
+                if (_spec.LocalRows != null)
+                {
+                    _all.Clear();
+                    _all.AddRange(_spec.LocalRows());
+                    ApplyFilter();
+                    return;
+                }
+
                 var r = await _bridge.CatalogAsync(_spec.LoadType);
                 if (!r.Flag("ok"))
                 {

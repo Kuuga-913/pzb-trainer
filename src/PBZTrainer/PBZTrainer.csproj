@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Data\PBZFeatures.json" />
+    <EmbeddedResource Include="Data\PBZAttributes.json" Condition="Exists('Data\PBZAttributes.json')" />
     <EmbeddedResource Include="Data\PBZCatalog.json" Condition="Exists('Data\PBZCatalog.json')" />
     <EmbeddedResource Include="$(BridgeDll)" LogicalName="PBZBridge.dll"
                       Condition="'$(EmbedBridge)' == 'true' And Exists('$(BridgeDll)')" />

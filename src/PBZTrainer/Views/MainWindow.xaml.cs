@@ -381,8 +381,11 @@ namespace PBZTrainer.Views
                     ("appearance", "外观解锁", "解锁角色外观"),
                     ("model", "角色模型", "替换角色模型 / 还原"),
                     ("skill", "技能释放", "直接释放攻击技能"),
+                    ("chain", "技能连段", "编排招式依次释放"),
                     ("bossmove", "BOSS 招式", "播放首领招式"),
-                    ("resource", "资源设置", "直接设置资源数量")
+                    ("resource", "资源设置", "直接设置资源数量"),
+                    ("weapon", "武器状态", "当前武器能力参数"),
+                    ("attribute", "角色属性", "直接改写角色属性数值")
                 }),
                 ("自动化", new[]
                 {
@@ -593,6 +596,36 @@ namespace PBZTrainer.Views
                     PrimaryLabel = "设置数量",
                     Primary = (b, r, v) => b.ResourceSetAsync(r.Id, double.TryParse(v, out var d) ? d : 0)
                 }),
+                "weapon" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "武器状态",
+                    Subtitle = "当前武器的能力参数；断开连接或点「安全恢复」时还原本次修改。",
+                    LoadType = "weapon_states",
+                    StateHeader = "当前值",
+                    ShowValue = true,
+                    ValueLabel = "设为",
+                    ValueDefault = "0",
+                    PrimaryLabel = "应用数值",
+                    Primary = (b, r, v) => b.WeaponStateSetAsync(
+                        r.Id, r.Raw?.Str("identity") ?? "", double.TryParse(v, out var d) ? d : 0),
+                    StateReader = n => n["value"].Num().ToString("0.###"),
+                    EmptyHint = "当前没有可调的武器参数：先装备武器再刷新"
+                }),
+                "attribute" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "角色属性",
+                    Subtitle = "直接改写角色属性数值（223 项）。填的是绝对值，不确定就先记下原值，改错可用存档回滚。",
+                    LoadType = "attributes",
+                    StateHeader = "分类",
+                    ShowValue = true,
+                    ValueLabel = "设为",
+                    ValueDefault = "100",
+                    PrimaryLabel = "写入数值",
+                    Primary = (b, r, v) => b.AttributeSetAsync(r.Id, double.TryParse(v, out var d) ? d : 0),
+                    LocalRows = PBZTrainer.Models.AttributeCatalog.Rows,
+                    StateReader = n => ""
+                }),
+                "chain" => new SkillChainView(_bridge),
                 "completion" => new CompletionView(_bridge),
                 "minimap" => new MinimapView(_bridge, _overlay),
                 "esp" => new EspView(_bridge, _overlay),

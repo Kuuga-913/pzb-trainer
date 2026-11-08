@@ -113,6 +113,23 @@ namespace PBZTrainer.Services
         public Task<JsonObject> PlayerSkillCastAsync(string id, CancellationToken ct = default)
             => RequestAsync(new JsonObject { ["command"] = "player_skill_cast", ["id"] = id }, ct, 30000);
 
+        // ---------- 技能连段 ----------
+
+        public Task<JsonObject> SkillGroupBeginAsync(CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_group_begin" }, ct, 30000);
+
+        public Task<JsonObject> SkillGroupCastAsync(string id, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_cast", ["id"] = id }, ct, 30000);
+
+        public Task<JsonObject> SkillGroupStatusAsync(string chainId, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_group_status", ["chainId"] = chainId ?? "" }, ct, 20000);
+
+        public Task<JsonObject> SkillGroupEndAsync(CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_group_end" }, ct, 30000);
+
+        public Task<JsonObject> SkillGroupStopAsync(string chainId, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_group_stop", ["chainId"] = chainId ?? "" }, ct, 20000);
+
         public Task<JsonObject> WeaponStateSetAsync(string id, string identity, double value, CancellationToken ct = default)
             => RequestAsync(new JsonObject
             {

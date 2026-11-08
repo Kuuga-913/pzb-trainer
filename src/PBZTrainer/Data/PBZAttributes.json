@@ -1,0 +1,1117 @@
+[
+  {
+    "id": "Level",
+    "name": "等级",
+    "category": "基础属性"
+  },
+  {
+    "id": "Health",
+    "name": "生命",
+    "category": "基础属性"
+  },
+  {
+    "id": "Health_Max",
+    "name": "生命上限",
+    "category": "基础属性"
+  },
+  {
+    "id": "Health_Max_Lv1",
+    "name": "初始生命上限",
+    "category": "基础属性"
+  },
+  {
+    "id": "Shield",
+    "name": "护盾",
+    "category": "基础属性"
+  },
+  {
+    "id": "Shield_Max",
+    "name": "护盾上限",
+    "category": "基础属性"
+  },
+  {
+    "id": "Infliction_Max",
+    "name": "异常积累上限",
+    "category": "异常状态"
+  },
+  {
+    "id": "Infliction_Max_Lv1",
+    "name": "初始异常积累上限",
+    "category": "异常状态"
+  },
+  {
+    "id": "Attack",
+    "name": "攻击力",
+    "category": "基础属性"
+  },
+  {
+    "id": "Attack_Lv1",
+    "name": "初始攻击力",
+    "category": "基础属性"
+  },
+  {
+    "id": "Amplification_Physical",
+    "name": "物理·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Physical",
+    "name": "物理·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Physical",
+    "name": "物理·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Physical",
+    "name": "物理·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Physical",
+    "name": "物理·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Physical",
+    "name": "物理·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Physical",
+    "name": "物理·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_PhysicalSharp",
+    "name": "斩击·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_PhysicalSharp",
+    "name": "斩击·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_PhysicalSharp",
+    "name": "斩击·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_PhysicalSharp",
+    "name": "斩击·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_PhysicalSharp",
+    "name": "斩击·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_PhysicalSharp",
+    "name": "斩击·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_PhysicalSharp",
+    "name": "斩击·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_PhysicalBlunt",
+    "name": "钝击·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_PhysicalBlunt",
+    "name": "钝击·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_PhysicalBlunt",
+    "name": "钝击·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_PhysicalBlunt",
+    "name": "钝击·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_PhysicalBlunt",
+    "name": "钝击·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_PhysicalBlunt",
+    "name": "钝击·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_PhysicalBlunt",
+    "name": "钝击·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Poise",
+    "name": "硬直·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Poise",
+    "name": "硬直·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Poise",
+    "name": "硬直·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Poise",
+    "name": "硬直·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Elemental",
+    "name": "元素·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Elemental",
+    "name": "元素·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Elemental",
+    "name": "元素·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Elemental",
+    "name": "元素·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Elemental",
+    "name": "元素·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Elemental",
+    "name": "元素·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Elemental",
+    "name": "元素·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Fire",
+    "name": "火·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Fire",
+    "name": "火·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Fire",
+    "name": "火·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Fire",
+    "name": "火·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Fire",
+    "name": "火·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Fire",
+    "name": "火·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Fire",
+    "name": "火·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Toxin",
+    "name": "毒·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Toxin",
+    "name": "毒·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Toxin",
+    "name": "毒·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Toxin",
+    "name": "毒·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Toxin",
+    "name": "毒·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Toxin",
+    "name": "毒·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Toxin",
+    "name": "毒·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Ice",
+    "name": "冰·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Ice",
+    "name": "冰·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Ice",
+    "name": "冰·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Ice",
+    "name": "冰·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Ice",
+    "name": "冰·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Ice",
+    "name": "冰·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Ice",
+    "name": "冰·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Aqua",
+    "name": "水·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Aqua",
+    "name": "水·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Aqua",
+    "name": "水·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Aqua",
+    "name": "水·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Aqua",
+    "name": "水·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Aqua",
+    "name": "水·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Aqua",
+    "name": "水·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Lightning",
+    "name": "雷·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Lightning",
+    "name": "雷·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Lightning",
+    "name": "雷·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Lightning",
+    "name": "雷·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Lightning",
+    "name": "雷·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Lightning",
+    "name": "雷·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Lightning",
+    "name": "雷·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Blood",
+    "name": "血·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Blood",
+    "name": "血·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Blood",
+    "name": "血·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Blood",
+    "name": "血·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Blood",
+    "name": "血·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Blood",
+    "name": "血·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Blood",
+    "name": "血·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Amplification_Chaos",
+    "name": "混沌·增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_Chaos",
+    "name": "混沌·造成易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "DealtReductionMultiplier_Chaos",
+    "name": "混沌·造成减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_Chaos",
+    "name": "混沌·抗性",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_Chaos",
+    "name": "混沌·受到加算增幅",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_Chaos",
+    "name": "混沌·受到易伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "TakenReductionMultiplier_Chaos",
+    "name": "混沌·受到减伤倍率",
+    "category": "伤害与抗性"
+  },
+  {
+    "id": "Resistance_BreakDamageAdditionalMultiplier",
+    "name": "破防伤害增幅·抗性",
+    "category": "破防与处决"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_BreakDamage",
+    "name": "破防伤害·受到加算增幅",
+    "category": "破防与处决"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_BreakDamage",
+    "name": "破防伤害·受到易伤倍率",
+    "category": "破防与处决"
+  },
+  {
+    "id": "TakenReductionMultiplier_BreakDamage",
+    "name": "破防伤害·受到减伤倍率",
+    "category": "破防与处决"
+  },
+  {
+    "id": "Shachi",
+    "name": "杀气",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Shachi_Min",
+    "name": "杀气下限",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Shachi_Max",
+    "name": "杀气上限",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Shachi_Max_Lv1",
+    "name": "初始杀气上限",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "ShachiRegen",
+    "name": "杀气恢复速度",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "ShachiRegenCooldown",
+    "name": "杀气恢复延迟",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "BreakDurationAdditionalMultiplier",
+    "name": "破防时长增幅",
+    "category": "破防与处决"
+  },
+  {
+    "id": "ShachiAttack",
+    "name": "杀气攻击力",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "ShachiAttack_Lv1",
+    "name": "初始杀气攻击力",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Amplification_ImpactShachi",
+    "name": "冲击杀气·增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_ImpactShachi",
+    "name": "冲击杀气·造成易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtReductionMultiplier_ImpactShachi",
+    "name": "冲击杀气·造成减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ImpactShachi",
+    "name": "冲击杀气·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_ImpactShachi",
+    "name": "冲击杀气·受到加算增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_ImpactShachi",
+    "name": "冲击杀气·受到易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenReductionMultiplier_ImpactShachi",
+    "name": "冲击杀气·受到减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Amplification_ReflectShachi",
+    "name": "反击杀气·增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_ReflectShachi",
+    "name": "反击杀气·造成易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtReductionMultiplier_ReflectShachi",
+    "name": "反击杀气·造成减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ReflectShachi",
+    "name": "反击杀气·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_ReflectShachi",
+    "name": "反击杀气·受到加算增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_ReflectShachi",
+    "name": "反击杀气·受到易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenReductionMultiplier_ReflectShachi",
+    "name": "反击杀气·受到减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Amplification_DefenceShachi",
+    "name": "格挡杀气·增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_DefenceShachi",
+    "name": "格挡杀气·造成易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "DealtReductionMultiplier_DefenceShachi",
+    "name": "格挡杀气·造成减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_DefenceShachi",
+    "name": "格挡杀气·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_DefenceShachi",
+    "name": "格挡杀气·受到加算增幅",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_DefenceShachi",
+    "name": "格挡杀气·受到易伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "TakenReductionMultiplier_DefenceShachi",
+    "name": "格挡杀气·受到减伤倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponHealth",
+    "name": "武装生命伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponShachi",
+    "name": "武装杀气伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponStrength",
+    "name": "武装力量伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponRanged",
+    "name": "远程武装伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponMagic",
+    "name": "术法武装伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponMartial",
+    "name": "武术武装伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "Resistance_ShachiWeaponSummon",
+    "name": "召唤武装伤害·抗性",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "HeavyAttack_ShachiCostReduction",
+    "name": "重攻击杀气消耗减免",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateCharge",
+    "name": "精纯杀气",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateCharge_Max",
+    "name": "精纯杀气上限",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateChargeCount",
+    "name": "精纯杀气段数",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateChargeCount_Max",
+    "name": "精纯杀气段数上限",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateChargeAdditiveRate",
+    "name": "精纯杀气额外恢复率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "UltimateChargeGainRateMultiplier",
+    "name": "精纯杀气获取倍率",
+    "category": "杀气与武装"
+  },
+  {
+    "id": "SpiritShadow",
+    "name": "灵影",
+    "category": "基础属性"
+  },
+  {
+    "id": "SpiritShadow_Max",
+    "name": "灵影上限",
+    "category": "基础属性"
+  },
+  {
+    "id": "Ignite_Accumulation",
+    "name": "灼烧积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Poison_Accumulation",
+    "name": "中毒积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Frost_Accumulation",
+    "name": "冰冻积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Thunder_Accumulation",
+    "name": "雷积累积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Electrified_Accumulation",
+    "name": "感电积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Bleed_Accumulation",
+    "name": "出血积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "BloodBurst_Accumulation",
+    "name": "血爆积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Water_Accumulation",
+    "name": "潮湿积累值",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_ElementalAccumulation",
+    "name": "元素积累·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_ElementalAccumulation",
+    "name": "元素积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_ElementalAccumulation",
+    "name": "元素积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_ElementalAccumulation",
+    "name": "元素积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_ElementalAccumulation",
+    "name": "元素积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_ElementalAccumulation",
+    "name": "元素积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_ElementalAccumulation",
+    "name": "元素积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Ignite",
+    "name": "灼烧·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_IgniteAccumulation",
+    "name": "灼烧积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_IgniteAccumulation",
+    "name": "灼烧积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_IgniteAccumulation",
+    "name": "灼烧积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_IgniteAccumulation",
+    "name": "灼烧积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_IgniteAccumulation",
+    "name": "灼烧积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_IgniteAccumulation",
+    "name": "灼烧积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Poison",
+    "name": "中毒·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_PoisonAccumulation",
+    "name": "中毒积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_PoisonAccumulation",
+    "name": "中毒积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_PoisonAccumulation",
+    "name": "中毒积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_PoisonAccumulation",
+    "name": "中毒积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_PoisonAccumulation",
+    "name": "中毒积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_PoisonAccumulation",
+    "name": "中毒积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Frost",
+    "name": "冰冻·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_FrostAccumulation",
+    "name": "冰冻积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_FrostAccumulation",
+    "name": "冰冻积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_FrostAccumulation",
+    "name": "冰冻积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_FrostAccumulation",
+    "name": "冰冻积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_FrostAccumulation",
+    "name": "冰冻积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_FrostAccumulation",
+    "name": "冰冻积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Electrified",
+    "name": "感电·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_ElectrifiedAccumulation",
+    "name": "感电积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_ElectrifiedAccumulation",
+    "name": "感电积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_ElectrifiedAccumulation",
+    "name": "感电积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_ElectrifiedAccumulation",
+    "name": "感电积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_ElectrifiedAccumulation",
+    "name": "感电积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_ElectrifiedAccumulation",
+    "name": "感电积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Bleed",
+    "name": "出血·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_BleedAccumulation",
+    "name": "出血积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_BleedAccumulation",
+    "name": "出血积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_BleedAccumulation",
+    "name": "出血积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_BleedAccumulation",
+    "name": "出血积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_BleedAccumulation",
+    "name": "出血积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_BleedAccumulation",
+    "name": "出血积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_BloodBurst",
+    "name": "血爆·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_BloodBurstAccumulation",
+    "name": "血爆积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_BloodBurstAccumulation",
+    "name": "血爆积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_BloodBurstAccumulation",
+    "name": "血爆积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_BloodBurstAccumulation",
+    "name": "血爆积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_BloodBurstAccumulation",
+    "name": "血爆积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_BloodBurstAccumulation",
+    "name": "血爆积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Amplification_Water",
+    "name": "潮湿·增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtVulnerabilityMultiplier_WaterAccumulation",
+    "name": "潮湿积累·造成易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "DealtReductionMultiplier_WaterAccumulation",
+    "name": "潮湿积累·造成减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "Resistance_WaterAccumulation",
+    "name": "潮湿积累·抗性",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenAdditiveMultiplier_WaterAccumulation",
+    "name": "潮湿积累·受到加算增幅",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenVulnerabilityMultiplier_WaterAccumulation",
+    "name": "潮湿积累·受到易伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "TakenReductionMultiplier_WaterAccumulation",
+    "name": "潮湿积累·受到减伤倍率",
+    "category": "异常状态"
+  },
+  {
+    "id": "StatusInflictionDecrementRate",
+    "name": "异常积累衰减速度",
+    "category": "异常状态"
+  },
+  {
+    "id": "ExecutionExecutorNormalHealthThreshold",
+    "name": "执行处决的生命阈值",
+    "category": "破防与处决"
+  },
+  {
+    "id": "ExecutionExecutorBreakHealthThreshold",
+    "name": "执行破防处决的生命阈值",
+    "category": "破防与处决"
+  },
+  {
+    "id": "ExecutionTargetNormalHealthThreshold",
+    "name": "被处决的生命阈值",
+    "category": "破防与处决"
+  },
+  {
+    "id": "ExecutionTargetBreakHealthThreshold",
+    "name": "被破防处决的生命阈值",
+    "category": "破防与处决"
+  },
+  {
+    "id": "MindDustAdditiveMultiplier",
+    "name": "念尘获取增幅",
+    "category": "基础属性"
+  },
+  {
+    "id": "Health_Min",
+    "name": "生命下限",
+    "category": "基础属性"
+  },
+  {
+    "id": "WalkSpeed",
+    "name": "步行速度",
+    "category": "移动能力"
+  },
+  {
+    "id": "JogSpeed",
+    "name": "慢跑速度",
+    "category": "移动能力"
+  },
+  {
+    "id": "SprintSpeed",
+    "name": "冲刺速度",
+    "category": "移动能力"
+  },
+  {
+    "id": "CrouchSpeed",
+    "name": "蹲行速度",
+    "category": "移动能力"
+  },
+  {
+    "id": "FinalWalkSpeed",
+    "name": "最终步行速度",
+    "category": "移动能力"
+  },
+  {
+    "id": "Awakening",
+    "name": "觉醒值",
+    "category": "基础属性"
+  },
+  {
+    "id": "Awakening_Max",
+    "name": "觉醒上限",
+    "category": "基础属性"
+  },
+  {
+    "id": "PowerScore",
+    "name": "能力评分",
+    "category": "基础属性"
+  },
+  {
+    "id": "XP",
+    "name": "经验",
+    "category": "基础属性"
+  },
+  {
+    "id": "Coin",
+    "name": "货币",
+    "category": "基础属性"
+  },
+  {
+    "id": "Corrosion",
+    "name": "侵蚀",
+    "category": "基础属性"
+  }
+]
