@@ -73,6 +73,55 @@ namespace PBZTrainer.Services
         public Task<JsonObject> ReviveStatusAsync(string batch, CancellationToken ct = default)
             => RequestAsync(new JsonObject { ["command"] = "revive_status", ["batch"] = batch }, ct, 20000);
 
+        // ---------- 任务 / 成就 / 外观 / 模型 / 资源 / 招式 ----------
+
+        public Task<JsonObject> QuestSetAsync(string id, bool completed, bool restart, CancellationToken ct = default)
+            => RequestAsync(new JsonObject
+            {
+                ["command"] = "quest_set",
+                ["id"] = id,
+                ["completed"] = completed,
+                ["restart"] = restart
+            }, ct, 30000);
+
+        public Task<JsonObject> AchievementSetAsync(string id, bool completed, CancellationToken ct = default)
+            => RequestAsync(new JsonObject
+            {
+                ["command"] = "achievement_set",
+                ["id"] = id,
+                ["completed"] = completed
+            }, ct, 25000);
+
+        public Task<JsonObject> AppearanceUnlockAsync(string id, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "appearance_unlock", ["id"] = id }, ct, 25000);
+
+        public Task<JsonObject> CharacterModelApplyAsync(string id, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "character_model_apply", ["id"] = id }, ct, 30000);
+
+        public Task<JsonObject> CharacterModelRestoreAsync(CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "character_model_restore" }, ct, 30000);
+
+        public Task<JsonObject> ResourceSetAsync(string id, double value, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "resource_set", ["id"] = id, ["value"] = value }, ct, 30000);
+
+        public Task<JsonObject> AttributeSetAsync(string id, double value, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "attribute_set", ["id"] = id, ["value"] = value }, ct, 30000);
+
+        public Task<JsonObject> BossMoveAsync(string id, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "boss_move", ["id"] = id }, ct, 30000);
+
+        public Task<JsonObject> PlayerSkillCastAsync(string id, CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "player_skill_cast", ["id"] = id }, ct, 30000);
+
+        public Task<JsonObject> WeaponStateSetAsync(string id, string identity, double value, CancellationToken ct = default)
+            => RequestAsync(new JsonObject
+            {
+                ["command"] = "weapon_state_set",
+                ["id"] = id,
+                ["identity"] = identity ?? "",
+                ["value"] = value
+            }, ct, 30000);
+
         // ---------- 位置 / 传送 ----------
 
         public Task<JsonObject> PositionAsync(CancellationToken ct = default)

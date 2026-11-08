@@ -374,6 +374,16 @@ namespace PBZTrainer.Views
                     ("minimap", "小地图", "游戏画面上的实时小地图"),
                     ("esp", "透视", "目标方框与标签")
                 }),
+                ("更多", new[]
+                {
+                    ("quest", "自定义任务", "全部任务 · 标记完成 / 重置"),
+                    ("achievement", "成就", "点亮 / 取消成就"),
+                    ("appearance", "外观解锁", "解锁角色外观"),
+                    ("model", "角色模型", "替换角色模型 / 还原"),
+                    ("skill", "技能释放", "直接释放攻击技能"),
+                    ("bossmove", "BOSS 招式", "播放首领招式"),
+                    ("resource", "资源设置", "直接设置资源数量")
+                }),
                 ("自动化", new[]
                 {
                     ("completion", "一键全收集", "九类收集 / 任务 / 战绩 / 地图")
@@ -503,6 +513,86 @@ namespace PBZTrainer.Views
                     "按游戏原生生成流程在角色附近生成怪物，可设数量（1~10）、距离与阵营。", "enemies"),
                 "map" => new CatalogView(_bridge, CatalogMode.Travel, "探索与地图",
                     "读取全域地点并直接传送；也可记录当前位置随时返回。", "locations"),
+                "quest" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "自定义任务",
+                    Subtitle = "读取全部任务，可标记完成或重置；会改变任务与剧情进度。",
+                    LoadType = "quests",
+                    StateHeader = "任务状态",
+                    PrimaryLabel = "标记完成",
+                    Primary = (b, r, v) => b.QuestSetAsync(r.Id, true, false),
+                    SecondaryLabel = "重置任务",
+                    Secondary = (b, r, v) => b.QuestSetAsync(r.Id, false, true),
+                    EmptyHint = "任务目录为空：请先进入存档再点刷新"
+                }),
+                "achievement" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "成就",
+                    Subtitle = "点亮或取消成就；只影响成就列表，不改任务进度。",
+                    LoadType = "achievements",
+                    StateHeader = "成就状态",
+                    PrimaryLabel = "点亮",
+                    Primary = (b, r, v) => b.AchievementSetAsync(r.Id, true),
+                    SecondaryLabel = "取消",
+                    Secondary = (b, r, v) => b.AchievementSetAsync(r.Id, false),
+                    StateReader = n => n["owned"].Num() > 0 ? "已点亮" : "未点亮"
+                }),
+                "appearance" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "外观解锁",
+                    Subtitle = "解锁角色外观（换装 / 配色等），解锁后到游戏内外观界面切换。",
+                    LoadType = "appearances",
+                    StateHeader = "状态",
+                    PrimaryLabel = "解锁外观",
+                    Primary = (b, r, v) => b.AppearanceUnlockAsync(r.Id),
+                    StateReader = n => n["owned"].Num() > 0 ? "已解锁" : "未解锁"
+                }),
+                "model" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "角色模型",
+                    Subtitle = "把角色替换成其他模型（首领 / NPC）；用完记得点「还原默认」。",
+                    LoadType = "character_models",
+                    StateHeader = "类别",
+                    PrimaryLabel = "应用模型",
+                    Primary = (b, r, v) => b.CharacterModelApplyAsync(r.Id),
+                    SecondaryLabel = "还原默认",
+                    Secondary = (b, r, v) => b.CharacterModelRestoreAsync(),
+                    SecondaryWithoutSelection = true,
+                    StateReader = n => ""
+                }),
+                "skill" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "技能释放",
+                    Subtitle = "直接释放一次攻击技能；部分技能依赖装备或架势，可能提示不可用。",
+                    LoadType = "player_skills",
+                    StateHeader = "可释放",
+                    PrimaryLabel = "释放",
+                    StateReader = n => n["available"].Flag(true) ? "可释放" : "不可用",
+                    Primary = (b, r, v) => b.PlayerSkillCastAsync(r.Id)
+                }),
+                "bossmove" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "BOSS 招式",
+                    Subtitle = "让角色播放首领招式（观赏 / 截图用），会覆盖当前动作。",
+                    LoadType = "boss_moves",
+                    StateHeader = "类型",
+                    EmptyHint = "招式目录为空：先锁定一个首领（进入首领战）再点刷新",
+                    PrimaryLabel = "播放招式",
+                    Primary = (b, r, v) => b.BossMoveAsync(r.Id)
+                }),
+                "resource" => new ActionListView(_bridge, new ActionSpec
+                {
+                    Title = "资源设置",
+                    Subtitle = "直接设置养成资源的数量（铸造金属、琥珀、货币等）。",
+                    LoadType = "resources",
+                    StateHeader = "当前持有",
+                    StateReader = n => n["owned"].Num().ToString("0.##"),
+                    ShowValue = true,
+                    ValueLabel = "数量",
+                    ValueDefault = "999",
+                    PrimaryLabel = "设置数量",
+                    Primary = (b, r, v) => b.ResourceSetAsync(r.Id, double.TryParse(v, out var d) ? d : 0)
+                }),
                 "completion" => new CompletionView(_bridge),
                 "minimap" => new MinimapView(_bridge, _overlay),
                 "esp" => new EspView(_bridge, _overlay),

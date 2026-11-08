@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:PBZTrainer"
         xmlns:m="clr-namespace:PBZTrainer.Models"
         Title="影之刃零 修改器"
-        Width="1200" Height="820" MinWidth="900" MinHeight="600"
+        Width="1200" Height="900" MinWidth="940" MinHeight="640"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip"
         FontFamily="{StaticResource UiFont}" UseLayoutRounding="True"
