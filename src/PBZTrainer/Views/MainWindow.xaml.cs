@@ -397,6 +397,7 @@ namespace PBZTrainer.Views
         private static readonly (string Group, (string Tag, string Label, string Hint)[] Items)[] NavModel = BuildNavModel();
 
         private readonly Dictionary<string, (Button Button, Border Bar, TextBlock Text)> _nav = new();
+        private readonly HashSet<string> _navExpanded = new() { "功能" };
 
         private void BuildNav()
         {
@@ -405,13 +406,52 @@ namespace PBZTrainer.Views
 
             foreach (var group in NavModel)
             {
-                NavPanel.Children.Add(new TextBlock
+                bool expanded = _navExpanded.Contains(group.Group);
+                var headContent = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                headContent.Children.Add(new TextBlock
+                {
+                    Text = expanded ? "▼" : "▶",
+                    FontSize = 8,
+                    FontFamily = new FontFamily("Segoe UI Symbol"),
+                    Foreground = Ui.Brush("Accent"),
+                    Width = 14,
+                    VerticalAlignment = VerticalAlignment.Center
+                });
+                headContent.Children.Add(new TextBlock
                 {
                     Text = group.Group,
-                    FontSize = 10,
+                    FontSize = 10.5,
+                    FontWeight = FontWeights.SemiBold,
                     Foreground = Ui.Brush("SubText"),
-                    Margin = new Thickness(10, 8, 8, 2)
+                    VerticalAlignment = VerticalAlignment.Center
                 });
+                headContent.Children.Add(new TextBlock
+                {
+                    Text = "  " + group.Items.Length,
+                    FontSize = 9.5,
+                    Foreground = Ui.Brush("Divider"),
+                    VerticalAlignment = VerticalAlignment.Center
+                });
+
+                var head = new Button
+                {
+                    Content = headContent,
+                    Style = Ui.Style("Btn"),
+                    Height = 26,
+                    Margin = new Thickness(0, 6, 0, 0),
+                    Padding = new Thickness(8, 0, 8, 0),
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    ToolTip = expanded ? "收起" : "展开"
+                };
+                head.Click += (_, __) =>
+                {
+                    if (!_navExpanded.Remove(group.Group)) _navExpanded.Add(group.Group);
+                    BuildNav();
+                    ApplyNavHighlight();
+                };
+                NavPanel.Children.Add(head);
+
+                if (!expanded) continue;
 
                 foreach (var item in group.Items)
                 {
@@ -441,7 +481,7 @@ namespace PBZTrainer.Views
                         Style = Ui.Style("Btn"),
                         Height = 29,
                         Margin = new Thickness(0, 0, 0, 0),
-                        Padding = new Thickness(10, 0, 8, 0),
+                        Padding = new Thickness(18, 0, 8, 0),
                         HorizontalContentAlignment = HorizontalAlignment.Left,
                         Tag = item.Tag
                     };
@@ -449,6 +489,18 @@ namespace PBZTrainer.Views
                     NavPanel.Children.Add(btn);
                     _nav[item.Tag] = (btn, bar, text);
                 }
+            }
+        }
+
+        private void ApplyNavHighlight()
+        {
+            foreach (var kv in _nav)
+            {
+                bool on = kv.Key == _tab;
+                kv.Value.Button.Background = on ? Ui.Brush("Chip") : Brushes.Transparent;
+                kv.Value.Text.Foreground = on ? Ui.Brush("Text") : Ui.Brush("SubText");
+                kv.Value.Text.FontWeight = on ? FontWeights.SemiBold : FontWeights.Normal;
+                kv.Value.Bar.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -467,14 +519,10 @@ namespace PBZTrainer.Views
         {
             _tab = tag;
 
-            foreach (var kv in _nav)
-            {
-                bool on = kv.Key == tag;
-                kv.Value.Button.Background = on ? Ui.Brush("Chip") : Brushes.Transparent;
-                kv.Value.Text.Foreground = on ? Ui.Brush("Text") : Ui.Brush("SubText");
-                kv.Value.Text.FontWeight = on ? FontWeights.SemiBold : FontWeights.Normal;
-                kv.Value.Bar.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-            }
+            var owner = NavModel.FirstOrDefault(g => g.Items.Any(i => i.Tag == tag));
+            if (owner.Group != null) _navExpanded.Add(owner.Group);
+            BuildNav();
+            ApplyNavHighlight();
 
             if (IsFeatureTab(tag))
             {
