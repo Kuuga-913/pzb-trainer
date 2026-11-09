@@ -78,7 +78,9 @@ namespace PBZTrainer.Views
         private readonly Button _back;
         private readonly Button _assist;
         private readonly TextBlock _warn = Ui.Sub("");
+        private readonly TextBlock _status2 = Ui.Sub("");
         private StackPanel _extraRow;
+        private bool _assistOn;
 
         private CatalogRow _selected;
         private double[] _savedPosition;
@@ -280,6 +282,9 @@ namespace PBZTrainer.Views
                 _warn.Margin = new Thickness(0, 8, 0, 0);
                 _warn.TextWrapping = TextWrapping.Wrap;
                 stack.Children.Add(_warn);
+                _status2.Margin = new Thickness(0, 4, 0, 0);
+                _status2.TextWrapping = TextWrapping.Wrap;
+                stack.Children.Add(_status2);
             }
             stack.Children.Add(_owned);
             stack.Children.Add(new Border { Height = 1, Background = Ui.Brush("Divider"), Margin = new Thickness(0, 10, 0, 8) });
@@ -351,7 +356,7 @@ namespace PBZTrainer.Views
                     }
                 }
 
-                RebuildCategories();
+                if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive) _ = SyncAssistStateAsync();
                 ApplyFilter();
                 _count.Text = $"{_all.Count} 项";
                 Ui.Log(_log, $"已读取目录：{_all.Count} 项");
@@ -515,41 +520,87 @@ namespace PBZTrainer.Views
             Ui.Log(_log, "生成仍在处理中，请先核对场景，勿重复提交");
         }
 
-        /// <summary>打 BOSS 用的一组功能（伤害/破防/生存），避免生成的敌人打不动或反被秒。</summary>
+        private static readonly (string Id, string Name, double Value)[] AssistPreset =
+        {
+            ("damage", "伤害倍率", 5),
+            ("one_hit", "秒杀", 100000),
+            ("fast_break", "快速破防", 100000),
+            ("never_break", "玩家不被破防", 1),
+            ("auto_deflect", "自动完美格挡", 1),
+            ("auto_qte", "自动 QTE", 1)
+        };
+
+        /// <summary>打 BOSS 用的一组功能；再点一次会全部关掉（秒杀开着时生成的怪会一击即死）。</summary>
         private async Task AssistAsync()
         {
             if (!_bridge.IsConnected) { Ui.Log(_log, "请先连接游戏"); return; }
-            var preset = new (string Id, string Name, double Value)[]
-            {
-                ("damage", "伤害倍率", 5),
-                ("one_hit", "秒杀", 100000),
-                ("fast_break", "快速破防", 100000),
-                ("never_break", "玩家不被破防", 1),
-                ("auto_deflect", "自动完美格挡", 1),
-                ("auto_qte", "自动 QTE", 1)
-            };
+            bool enable = !_assistOn;
 
             _assist.IsEnabled = false;
             try
             {
-                Ui.Log(_log, "开启助战预设…");
-                foreach (var (id, name, value) in preset)
+                Ui.Log(_log, enable ? "开启助战预设…" : "关闭助战预设…");
+                foreach (var (id, name, value) in AssistPreset)
                 {
                     try
                     {
-                        var r = await _bridge.FeatureAsync(id, true, value);
-                        Ui.Log(_log, (r != null && r.Flag("ok") ? "✔ " : "✘ ") + name + "　" + (r?.Str("message") ?? ""));
+                        var r = await _bridge.FeatureAsync(id, enable, enable ? value : 0);
+                        Ui.Log(_log, (r != null && r.Flag("ok") ? "✔ " : "✘ ") + name + (enable ? " 开" : " 关") +
+                                      (string.IsNullOrEmpty(r?.Str("message")) ? "" : "　" + r.Str("message")));
                     }
                     catch (Exception ex)
                     {
                         Ui.Log(_log, "✘ " + name + "：" + ex.Message);
                     }
                 }
-                Ui.Log(_log, "助战已开启；仍打不动说明该首领需要阶段/剧情推进，建议换普通敌人或用「传回记录点」脱战。");
+
+                _assistOn = enable;
+                _assist.Content = enable ? "关闭助战预设" : "开启助战预设";
+                RefreshAssistHint();
+                Ui.Log(_log, enable
+                    ? "助战已开启：注意「秒杀 / 伤害倍率」会让生成的敌人一击即死。"
+                    : "助战已关闭：伤害与破防恢复原样，生成的敌人可以正常打。");
             }
             finally
             {
                 _assist.IsEnabled = true;
+            }
+        }
+
+        /// <summary>读一次能力列表，判断秒杀 / 伤害倍率是否开着，用来提示与按钮文案。</summary>
+        private async Task SyncAssistStateAsync()
+        {
+            try
+            {
+                var caps = await _bridge.CapabilitiesAsync();
+                var feats = caps?["features"] as JsonArray;
+                if (feats == null) return;
+                bool oneHit = false, dmg = false;
+                foreach (var f in feats.OfType<JsonObject>())
+                {
+                    string id = f.Str("id") ?? "";
+                    if (!f.Flag("enabled")) continue;
+                    if (id == "one_hit") oneHit = true;
+                    if (id == "damage") dmg = true;
+                }
+                _assistOn = oneHit || dmg;
+                _assist.Content = _assistOn ? "关闭助战预设" : "开启助战预设";
+                RefreshAssistHint();
+            }
+            catch { }
+        }
+
+        private void RefreshAssistHint()
+        {
+            if (_mode != CatalogMode.Spawn && _mode != CatalogMode.Revive) return;
+            if (_assistOn)
+            {
+                _status2.Text = "⚠ 当前「秒杀 / 伤害倍率」是开着的，生成的敌人会一击即死；点「关闭助战预设」可还原。";
+                _status2.Foreground = Ui.Brush("Warn");
+            }
+            else
+            {
+                _status2.Text = "";
             }
         }
 

@@ -579,7 +579,8 @@ namespace PBZTrainer.Views
                     Subtitle = "让角色播放首领招式（观赏 / 截图用），会覆盖当前动作。",
                     LoadType = "boss_moves",
                     StateHeader = "类型",
-                    EmptyHint = "招式目录为空：先锁定一个首领（进入首领战）再点刷新",
+                    RetryWhenEmpty = 3,
+                    EmptyHint = "招式目录为空：需要在首领战中锁定首领才会出现，进入战斗后会自动重试",
                     PrimaryLabel = "播放招式",
                     Primary = (b, r, v) => b.BossMoveAsync(r.Id)
                 }),

@@ -33,6 +33,8 @@ namespace PBZTrainer.Views
         public Func<JsonObject, string> StateReader;
         /// <summary>可选：不用游戏目录，直接给一份本地数据（例如内置属性表）。</summary>
         public Func<List<CatalogRow>> LocalRows;
+        /// <summary>目录为空时自动重试几次（例如首领招式需要锁定首领）。</summary>
+        public int RetryWhenEmpty;
     }
 
     /// <summary>通用动作页：左侧目录列表，右侧详情 + 操作按钮 + 日志。</summary>
@@ -64,6 +66,7 @@ namespace PBZTrainer.Views
         private readonly Button _primary;
         private readonly Button _secondary;
         private CatalogRow _selected;
+        private int _retries;
 
         public ActionListView(BridgeClient bridge, ActionSpec spec)
         {
@@ -234,6 +237,18 @@ namespace PBZTrainer.Views
                     }
                 }
                 ApplyFilter();
+
+                if (_all.Count == 0 && _spec.RetryWhenEmpty > _retries)
+                {
+                    _retries++;
+                    _count.Text = $"目录为空，正在重试（{_retries}/{_spec.RetryWhenEmpty}）…";
+                    await Task.Delay(2500);
+                    await LoadAsync();
+                }
+                else
+                {
+                    _retries = 0;
+                }
             }
             catch (Exception ex)
             {

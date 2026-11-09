@@ -19,6 +19,9 @@ namespace PBZTrainer.Services
                 ["value"] = value
             }, ct, 20000);
 
+        public Task<JsonObject> CapabilitiesAsync(CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "capabilities" }, ct, 20000);
+
         // ---------- 目录 ----------
 
         public Task<JsonObject> CatalogAsync(string type, CancellationToken ct = default)
