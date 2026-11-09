@@ -135,7 +135,9 @@ namespace PBZTrainer.Services
             catch (Exception ex)
             {
                 State = BridgeState.Error;
-                LastMessage = Friendly(ex);
+                LastMessage = Native.PipeBusy(Injector.PipeName(game.Pid))
+                    ? "连接被占用：已有另一个修改器窗口连着，或上次异常退出留下了会话。先关掉其他窗口；仍不行就完全退出游戏再重开一次。"
+                    : Friendly(ex);
                 DisposePipe();
                 Raise();
                 return false;

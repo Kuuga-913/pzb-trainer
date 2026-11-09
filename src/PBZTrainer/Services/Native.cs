@@ -33,6 +33,22 @@ namespace PBZTrainer.Services
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr GetModuleHandleW(string name);
 
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr CreateFileW(string name, uint access, uint share, IntPtr sa,
+                                                uint disposition, uint flags, IntPtr template);
+
+        /// <summary>管道是否存在但被占用（ERROR_PIPE_BUSY = 231）。</summary>
+        public static bool PipeBusy(string pipeName)
+        {
+            IntPtr h = CreateFileW(pipeName, 0x80000000u | 0x40000000u, 0, IntPtr.Zero, 3, 0, IntPtr.Zero);
+            if (h != new IntPtr(-1))
+            {
+                CloseHandle(h);
+                return false;
+            }
+            return Marshal.GetLastWin32Error() == 231;
+        }
+
         [DllImport("kernel32", SetLastError = true)]
         public static extern bool ReadProcessMemory(IntPtr proc, IntPtr addr, byte[] buffer, UIntPtr size, out UIntPtr read);
 
@@ -48,8 +64,6 @@ namespace PBZTrainer.Services
         [DllImport("kernel32", SetLastError = true)]
         public static extern bool GetExitCodeThread(IntPtr thread, out uint code);
 
-        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern IntPtr CreateFileW(string name, uint access, uint share, IntPtr sa, uint disp, uint flags, IntPtr template);
 
         [DllImport("kernel32", SetLastError = true)]
         public static extern bool IsWow64Process(IntPtr proc, out bool wow64);

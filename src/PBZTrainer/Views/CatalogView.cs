@@ -357,6 +357,7 @@ namespace PBZTrainer.Views
                 }
 
                 if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive) _ = SyncAssistStateAsync();
+                RebuildCategories();   // 生成/复活页需要「全部 · 普通敌人 · 首领」这类筛选
                 ApplyFilter();
                 _count.Text = $"{_all.Count} 项";
                 Ui.Log(_log, $"已读取目录：{_all.Count} 项");
