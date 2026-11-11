@@ -186,11 +186,31 @@ namespace PBZTrainer.Services
             => RequestAsync(new JsonObject { ["command"] = "minimap.frame", ["stamp"] = stamp }, ct, 15000);
 
         public Task<JsonObject> MinimapTravelAsync(string stamp, string targetId, CancellationToken ct = default)
-            => RequestAsync(new JsonObject
+            => MinimapTravelAsync(stamp, targetId, double.NaN, double.NaN, ct);
+
+        /// <summary>带 uv 的传送请求；部分版本要求同时给坐标才能定位。</summary>
+        public Task<JsonObject> MinimapTravelAsync(string stamp, string targetId, double u, double v, CancellationToken ct = default)
+        {
+            var req = new JsonObject
             {
                 ["command"] = "minimap.travel_target",
                 ["stamp"] = stamp ?? "",
                 ["target"] = targetId ?? ""
+            };
+            if (!double.IsNaN(u) && !double.IsNaN(v))
+            {
+                req["uv"] = new JsonArray(u, v);
+                req["position"] = new JsonArray(u, v);
+            }
+            return RequestAsync(req, ct, 30000);
+        }
+
+        public Task<JsonObject> CollectionLocateAsync(string id, bool travel = true, CancellationToken ct = default)
+            => RequestAsync(new JsonObject
+            {
+                ["command"] = "collection_locate",
+                ["id"] = id ?? "",
+                ["travel"] = travel
             }, ct, 30000);
 
         public Task<JsonObject> MinimapReturnAsync(CancellationToken ct = default)

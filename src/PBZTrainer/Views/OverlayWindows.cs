@@ -105,7 +105,8 @@ namespace PBZTrainer.Views
         private readonly TextBlock _hint = new();
         private readonly List<(MinimapMark mark, Point pt)> _hit = new();
 
-        public event Action<string> TravelRequested;
+        public event Action<string, double, double> TravelRequested;
+        public bool ClickEnabled { get; set; }
 
         public MinimapOverlayWindow(BridgeClient bridge, Func<string> stamp, Func<double> scale)
         {
@@ -144,16 +145,26 @@ namespace PBZTrainer.Views
 
         private void OnClick(Point p)
         {
-            if (ClickThrough) return;
+            if (ClickThrough)
+            {
+                _hint.Text = "点击穿透中：先打开「点击标记可传送」";
+                return;
+            }
             var hit = _hit.OrderBy(h => (h.pt - p).Length).FirstOrDefault();
-            if (hit.mark == null) return;
-            if ((hit.pt - p).Length > 16) return;
-            if (!string.IsNullOrEmpty(hit.mark.Id)) TravelRequested?.Invoke(hit.mark.Id);
+            if (hit.mark == null) { _hint.Text = "没点中标记，靠近些再点"; return; }
+            if ((hit.pt - p).Length > 16) { _hint.Text = "没点中标记，靠近些再点"; return; }
+            if (string.IsNullOrEmpty(hit.mark.Id)) { _hint.Text = "该标记没有可用的传送 id"; return; }
+            _hint.Text = "正在传送：" + hit.mark.Title;
+            TravelRequested?.Invoke(hit.mark.Id, hit.mark.U, hit.mark.V);
         }
+
+        /// <summary>外部显示一条提示（传送结果等）。</summary>
+        public void SetHint(string text) => _hint.Text = text;
 
         public void Render(List<MinimapMark> marks, double pu, double pv, double heading, string title, int layer)
         {
             PlaceOverGame(_bridge.TargetPid, 24, 84, (int)Size, (int)Size, true);
+            ClickThrough = !ClickEnabled;
 
             _map.Children.Clear();
             _hit.Clear();
@@ -221,7 +232,7 @@ namespace PBZTrainer.Views
             arrow.RenderTransform = new RotateTransform(heading * 180 / Math.PI + 90);
             _map.Children.Add(arrow);
 
-            _hint.Text = ClickThrough ? "点击标记可传送（需开启点击）" : "点击标记可传送";
+
         }
 
         private static Brush MarkBrush(MinimapMark m)

@@ -98,12 +98,37 @@ namespace PBZTrainer.Views
             if (_minimap == null)
             {
                 _minimap = new MinimapOverlayWindow(_bridge, () => _minimapStamp, () => _scale);
-                _minimap.TravelRequested += async id =>
+                _minimap.TravelRequested += async (id, u, v) =>
                 {
-                    try { await _bridge.MinimapTravelAsync(_minimapStamp, id); } catch { }
+                    string result = "传送失败";
+                    try
+                    {
+                        var r = await _bridge.MinimapTravelAsync(_minimapStamp, id, u, v);
+                        if (r != null && r.Flag("ok")) result = r.Str("message") ?? "已传送";
+                        else
+                        {
+                            // 部分版本只认 stamp+target，再来一次
+                            var r2 = await _bridge.MinimapTravelAsync(_minimapStamp, id);
+                            if (r2 != null && r2.Flag("ok")) result = r2.Str("message") ?? "已传送";
+                            else
+                            {
+                                // 收集物走 collection_locate 兜底
+                                var r3 = await _bridge.CollectionLocateAsync(id, true);
+                                result = r3 != null && r3.Flag("ok")
+                                    ? (r3.Str("message") ?? "已传送")
+                                    : (r?.Str("message") ?? r3?.Str("message") ?? "传送失败");
+                            }
+                        }
+                    }
+                    catch (Exception ex) { result = "传送异常：" + ex.Message; }
+
+                    _minimap?.SetHint(result);
+                    MinimapStatus = "传送：" + result;
+                    Raise();
                 };
                 _minimap.Show();
             }
+            _minimap.ClickEnabled = clickEnabled;
             _minimap.ClickThrough = !clickEnabled;
         }
 

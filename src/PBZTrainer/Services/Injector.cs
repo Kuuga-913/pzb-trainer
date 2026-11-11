@@ -25,7 +25,7 @@ namespace PBZTrainer.Services
         public const string GameExe = "PBZ";
         public const string BridgeFileName = "PBZBridge.dll";
 
-        private static Process[] Candidates()
+        public static Process[] Candidates()
         {
             try
             {

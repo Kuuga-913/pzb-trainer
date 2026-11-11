@@ -128,7 +128,9 @@ namespace PBZTrainer.Services
                 LastMessage = Str(hello["message"]) ?? "已连接";
                 ResetAuthorization(hello);
                 await RefreshAsync();
-                LastMessage = Ready ? "游戏已就绪" : "等待游戏场景";
+                if (Ready) LastMessage = "游戏已就绪";
+                else if (string.IsNullOrWhiteSpace(LastMessage) || LastMessage == "已连接")
+                    LastMessage = "等待进入可操作场景";
                 Raise();
                 return true;
             }

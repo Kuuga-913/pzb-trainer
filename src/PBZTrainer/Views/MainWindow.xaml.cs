@@ -103,6 +103,10 @@ namespace PBZTrainer.Views
 
             BuildNav();
             SelectTab(_tab);
+            RestoreToggle.IsChecked = _state.RestoreSettings;
+            RestoreToggle.ToolTip = _state.RestoreSettings
+                ? "已开启：下次打开会自动套用上次的开关与数值"
+                : "已关闭：每次启动都是全部关闭的干净状态";
             RebuildHotkeys();
 
             _hotkeys.Start();
@@ -207,7 +211,12 @@ namespace PBZTrainer.Views
                     if (_bridge.Ready)
                         SetStatus("游戏已就绪", "#57C7B4", "●");
                     else
-                        SetStatus("等待进入场景", "#D9A441", "◌");
+                    {
+                        string hint = _bridge.LastMessage;
+                        if (string.IsNullOrWhiteSpace(hint) || hint == "游戏已就绪") hint = "等待进入可操作场景";
+                        if (hint.Length > 26) hint = hint.Substring(0, 26) + "…";
+                        SetStatus(hint, "#D9A441", "◌");
+                    }
                     break;
                 case BridgeState.Connecting:
                     SetStatus("正在连接", "#D9A441", "◌");
@@ -334,6 +343,18 @@ namespace PBZTrainer.Views
             FeatureSections.Children.Add(grid);
         }
 
+        private void RestoreToggle_Click(object sender, RoutedEventArgs e)
+        {
+            _state.RestoreSettings = RestoreToggle.IsChecked == true;
+            SaveState();
+            RestoreToggle.ToolTip = _state.RestoreSettings
+                ? "已开启：下次打开会自动套用上次的开关与数值"
+                : "已关闭：每次启动都是全部关闭的干净状态";
+            ShowToast(_state.RestoreSettings
+                ? "已记住上次设置：下次打开自动套用"
+                : "已关闭：下次启动为全部关闭的干净状态");
+        }
+
         private void ScheduleSave()
         {
             if (_suppressSave || _state == null) return;
@@ -385,7 +406,8 @@ namespace PBZTrainer.Views
                     ("bossmove", "BOSS 招式", "播放首领招式"),
                     ("resource", "资源设置", "直接设置资源数量"),
                     ("weapon", "武器状态", "当前武器能力参数"),
-                    ("attribute", "角色属性", "直接改写角色属性数值")
+                    ("attribute", "角色属性", "直接改写角色属性数值"),
+                    ("diagnostics", "连接诊断", "异常时收集环境与目录信息")
                 }),
                 ("自动化", new[]
                 {
@@ -675,6 +697,7 @@ namespace PBZTrainer.Views
                     StateReader = n => ""
                 }),
                 "chain" => new SkillChainView(_bridge),
+                "diagnostics" => new DiagnosticsView(_bridge),
                 "completion" => new CompletionView(_bridge),
                 "minimap" => new MinimapView(_bridge, _overlay),
                 "esp" => new EspView(_bridge, _overlay),
