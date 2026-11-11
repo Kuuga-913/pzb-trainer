@@ -63,14 +63,18 @@ namespace PBZTrainer.Services
             }
         }
 
-        /// <summary>返回 true 表示门禁已解除（本次刚打或之前已打）。</summary>
+        /// <summary>
+        /// 返回 true 表示门禁已解除（本次刚打或之前已打）。
+        /// 组件是 VMProtect 保护的，刚注入时判定入口可能还没解密完成（读出来不是 E9），
+        /// 所以这里会轮询重试；写入前先改页保护，避免只读页写不进去。
+        /// </summary>
         public static bool Unlock(int pid, out string note)
         {
             note = "";
             IntPtr baseAddr = FindModuleBase(pid, Injector.BridgeFileName);
             if (baseAddr == IntPtr.Zero)
             {
-                note = "游戏内未找到桥接组件";
+                note = "游戏内未找到组件模块";
                 return false;
             }
 
@@ -84,37 +88,58 @@ namespace PBZTrainer.Services
             try
             {
                 IntPtr addr = IntPtr.Add(baseAddr, AuthThunkRva);
-                byte[] cur = new byte[5];
-                if (!Native.ReadProcessMemory(proc, addr, cur, 5, out _))
+                string last = "";
+
+                for (int attempt = 0; attempt < 10; attempt++)
                 {
-                    note = "读取判定入口失败";
-                    return false;
+                    byte[] cur = new byte[5];
+                    if (!Native.ReadProcessMemory(proc, addr, cur, 5, out _))
+                    {
+                        last = "读取判定入口失败";
+                        System.Threading.Thread.Sleep(300);
+                        continue;
+                    }
+
+                    if (cur[0] == AuthorizedStub[0] && cur[1] == AuthorizedStub[1] && cur[2] == AuthorizedStub[2])
+                    {
+                        note = "门禁已处于解锁状态";
+                        return true;
+                    }
+
+                    // 还没解密完成 / 不是跳转：等一下再读，别乱改
+                    if (cur[0] != 0xE9)
+                    {
+                        last = $"判定入口不是预期跳转（{cur[0]:X2}），等待组件就绪";
+                        System.Threading.Thread.Sleep(300);
+                        continue;
+                    }
+
+                    uint oldProtect;
+                    bool changed = Native.VirtualProtectEx(proc, addr, (UIntPtr)5, 0x40 /* PAGE_EXECUTE_READWRITE */, out oldProtect);
+                    bool wrote = Native.WriteProcessMemory(proc, addr, AuthorizedStub, 5, out _);
+                    if (changed) Native.VirtualProtectEx(proc, addr, (UIntPtr)5, oldProtect, out _);
+
+                    if (!wrote)
+                    {
+                        last = "写入判定入口失败";
+                        System.Threading.Thread.Sleep(300);
+                        continue;
+                    }
+
+                    byte[] check = new byte[3];
+                    Native.ReadProcessMemory(proc, addr, check, 3, out _);
+                    if (check[0] == AuthorizedStub[0] && check[1] == AuthorizedStub[1] && check[2] == AuthorizedStub[2])
+                    {
+                        note = attempt == 0 ? "已解除高级功能门禁" : $"已解除高级功能门禁（重试 {attempt} 次）";
+                        return true;
+                    }
+
+                    last = "写入后校验不一致";
+                    System.Threading.Thread.Sleep(300);
                 }
 
-                if (cur[0] == AuthorizedStub[0] && cur[1] == AuthorizedStub[1] && cur[2] == AuthorizedStub[2])
-                {
-                    note = "门禁已处于解锁状态";
-                    return true;
-                }
-
-                // 必须是跳转指令（E9 rel32），否则说明版本不同，别乱改
-                if (cur[0] != 0xE9)
-                {
-                    note = $"判定入口不是预期跳转（{cur[0]:X2}），组件版本可能不同，已跳过";
-                    return false;
-                }
-
-                if (!Native.WriteProcessMemory(proc, addr, AuthorizedStub, 5, out _))
-                {
-                    note = "写入判定入口失败";
-                    return false;
-                }
-
-                byte[] check = new byte[3];
-                Native.ReadProcessMemory(proc, addr, check, 3, out _);
-                bool ok = check[0] == AuthorizedStub[0] && check[1] == AuthorizedStub[1] && check[2] == AuthorizedStub[2];
-                note = ok ? "已解除高级功能门禁" : "校验失败";
-                return ok;
+                note = last + "；组件版本可能不同";
+                return false;
             }
             finally
             {

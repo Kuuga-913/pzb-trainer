@@ -190,7 +190,9 @@ namespace PBZTrainer.Views
                         PageHost.Content = GetView(_tab);
                     Sync(() => _bridge.ApplyStates(_all));
                     RebuildHotkeys();
-                    ShowToast("已连接游戏 · " + (_bridge.Ready ? "角色状态就绪" : "请进入存档"));
+                    ShowToast(_bridge.GateOk
+                        ? "已连接游戏 · " + (_bridge.Ready ? "角色状态就绪" : "请进入存档")
+                        : "已连接，但高级功能校验未解除：部分功能可能提示需要解锁（组件版本可能不同）");
                 }
             }
             finally

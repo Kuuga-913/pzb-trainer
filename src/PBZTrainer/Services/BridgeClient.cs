@@ -90,8 +90,9 @@ namespace PBZTrainer.Services
                 // 解除「高级功能」门禁（只改游戏进程内存，不动磁盘文件）
                 try
                 {
-                    if (BridgeGate.Unlock(game.Pid, out string gateNote)) log?.Invoke(gateNote);
-                    else log?.Invoke("门禁未解除：" + gateNote);
+                    GateOk = BridgeGate.Unlock(game.Pid, out string gateNote);
+                    LastGateNote = gateNote;
+                    log?.Invoke(GateOk ? gateNote : "门禁未解除：" + gateNote);
                 }
                 catch (Exception ex) { log?.Invoke("门禁处理失败：" + ex.Message); }
 
@@ -274,7 +275,7 @@ namespace PBZTrainer.Services
             Raise();
         }
 
-        public async Task<JsonObject> RequestAsync(JsonObject request, CancellationToken ct = default, int timeoutMs = 0)
+        private async Task<JsonObject> RequestOnceAsync(JsonObject request, CancellationToken ct = default, int timeoutMs = 0)
         {
             var pipe = _pipe;
             if (pipe == null || !pipe.IsConnected) throw new IOException("请先连接游戏");
@@ -324,6 +325,33 @@ namespace PBZTrainer.Services
                 _gate.Release();
             }
         }
+
+        /// <summary>门禁是否已解除（连接时打补丁失败会置 false）。</summary>
+        public bool GateOk { get; private set; } = true;
+        public string LastGateNote { get; set; } = "";
+
+        /// <summary>
+        /// 发请求；如果游戏侧回「请先解锁高级功能」，说明补丁没打上（刚注入、组件还没解密完时常见），
+        /// 就地重新解锁并重发一次；只重试一次，避免死循环。
+        /// </summary>
+        public async Task<JsonObject> RequestAsync(JsonObject request, CancellationToken ct = default, int timeoutMs = 0)
+        {
+            var resp = await RequestOnceAsync(request, ct, timeoutMs);
+
+            if (resp != null && !IsTrue(resp["ok"]))
+            {
+                string msg = Str(resp["message"]) ?? "";
+                if (msg.Contains("请先解锁高级功能") && TargetPid > 0)
+                {
+                    bool ok = BridgeGate.Unlock(TargetPid, out string note);
+                    LastGateNote = note;
+                    GateOk = ok;
+                    if (ok) resp = await RequestOnceAsync(request, ct, timeoutMs);
+                }
+            }
+            return resp;
+        }
+
 
         private static async Task<byte[]> ReadExactAsync(Stream s, int count, CancellationToken ct)
         {

@@ -28,6 +28,9 @@ namespace PBZTrainer.Services
         public static extern bool VirtualFreeEx(IntPtr proc, IntPtr addr, UIntPtr size, uint type);
 
         [DllImport("kernel32", SetLastError = true)]
+        public static extern bool VirtualProtectEx(IntPtr proc, IntPtr addr, UIntPtr size, uint newProtect, out uint oldProtect);
+
+        [DllImport("kernel32", SetLastError = true)]
         public static extern bool WriteProcessMemory(IntPtr proc, IntPtr addr, byte[] buffer, UIntPtr size, out UIntPtr written);
 
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
