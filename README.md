@@ -2,6 +2,8 @@
 
 《影之刃零 / Phantom Blade Zero》单人模式的外部修改器，C# / WPF 实现，水墨暗色 + 朱砂红界面。
 
+作者：B站账号 **KuugaOOO**。其余账号发布的同名修改器均为盗版。
+
 **76 项功能开关 + 3000 余条可操作条目**：10 个功能分类、14 个工具页、2 个游戏内悬浮层。
 **默认以管理员权限启动**，游戏无论用普通权限还是管理员权限打开都能连上；启动时系统会弹一次 UAC，点「是」即可。
 
@@ -13,9 +15,9 @@
 
 | 文件 | 说明 |
 |---|---|
-| **PBZTrainer-v1.0.7-win-x64.exe** | 单文件 71 MB，Windows x64，**下载双击即用**（启动会弹一次 UAC） |
+| **PBZTrainer-v1.0.8-win-x64.exe** | 单文件 71 MB，Windows x64，**下载双击即用**（启动会弹一次 UAC） |
 
-> 历史版本（v1.0.0 ~ v1.0.6）都在 [Releases 列表](https://github.com/Kuuga-913/pzb-trainer/releases) 里。
+> 历史版本（v1.0.0 ~ v1.0.7）都在 [Releases 列表](https://github.com/Kuuga-913/pzb-trainer/releases) 里。
 > 注意链接末尾**不要带 `/latest`**——那是“只显示最新版”的单页；带 `/releases` 才是完整列表。
 
 - 自带 .NET 8 运行时，免安装，不写注册表、不留服务

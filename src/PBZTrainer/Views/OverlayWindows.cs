@@ -232,6 +232,17 @@ namespace PBZTrainer.Views
             arrow.RenderTransform = new RotateTransform(heading * 180 / Math.PI + 90);
             _map.Children.Add(arrow);
 
+            var mark = new TextBlock
+            {
+                Text = "KuugaOOO",
+                FontSize = 9.5,
+                Foreground = new SolidColorBrush(Color.FromArgb(0x66, 0xC0, 0x39, 0x2B)),
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(mark, 10);
+            Canvas.SetTop(mark, Size - 20);
+            _map.Children.Add(mark);
+
 
         }
 
@@ -325,7 +336,7 @@ namespace PBZTrainer.Views
                 _visuals.Remove(key);
             }
 
-            _watermark.Text = _visuals.Count > 0 ? $"ESP · {_visuals.Count} 个目标" : "ESP 已开启 · 视野内暂无目标";
+            _watermark.Text = _visuals.Count > 0 ? $"ESP · {_visuals.Count} 个目标 · KuugaOOO" : "ESP 已开启 · 视野内暂无目标 · KuugaOOO";
         }
 
         private Visual Create(EspBox b)
