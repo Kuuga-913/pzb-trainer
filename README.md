@@ -15,6 +15,9 @@
 |---|---|
 | **PBZTrainer-v1.0.7-win-x64.exe** | 单文件 71 MB，Windows x64，**下载双击即用**（启动会弹一次 UAC） |
 
+> 历史版本（v1.0.0 ~ v1.0.6）都在 [Releases 列表](https://github.com/Kuuga-913/pzb-trainer/releases) 里。
+> 注意链接末尾**不要带 `/latest`**——那是“只显示最新版”的单页；带 `/releases` 才是完整列表。
+
 - 自带 .NET 8 运行时，免安装，不写注册表、不留服务
 - 连不上游戏时右上角会提示，并每 6 秒自动重试
 
