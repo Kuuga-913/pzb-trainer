@@ -81,6 +81,7 @@ namespace PBZTrainer.Views
         private readonly TextBlock _status2 = Ui.Sub("");
         private StackPanel _extraRow;
         private bool _assistOn;
+        private readonly Button _restoreAll;
 
         private CatalogRow _selected;
         private double[] _savedPosition;
@@ -124,6 +125,7 @@ namespace PBZTrainer.Views
             _record = Ui.Button("记录当前位置", () => _ = RecordAsync(), "Ghost", 30, 116, 12);
             _back = Ui.Button("传回记录点", () => _ = BackAsync(), "Ghost", 30, 108, 12);
             _assist = Ui.Button("开启助战预设", () => _ = AssistAsync(), "AccentBtn", 30, 116, 12);
+            _restoreAll = Ui.Button("还原全部修改", () => _ = RestoreAllAsync(), "Ghost", 30, 112, 12);
 
             var catScroll = new ScrollViewer
             {
@@ -262,6 +264,8 @@ namespace PBZTrainer.Views
 
                     _extraRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
                     _extraRow.Children.Add(_assist);
+                    _restoreAll.Margin = new Thickness(8, 0, 0, 0);
+                    _extraRow.Children.Add(_restoreAll);
                     _record.Margin = new Thickness(8, 0, 0, 0);
                     _extraRow.Children.Add(_record);
                     _back.Margin = new Thickness(8, 0, 0, 0);
@@ -524,7 +528,6 @@ namespace PBZTrainer.Views
         private static readonly (string Id, string Name, double Value)[] AssistPreset =
         {
             ("damage", "伤害倍率", 5),
-            ("one_hit", "秒杀", 100000),
             ("fast_break", "快速破防", 100000),
             ("never_break", "玩家不被破防", 1),
             ("auto_deflect", "自动完美格挡", 1),
@@ -532,6 +535,36 @@ namespace PBZTrainer.Views
         };
 
         /// <summary>打 BOSS 用的一组功能；再点一次会全部关掉（秒杀开着时生成的怪会一击即死）。</summary>
+        /// <summary>还原本次会话的可逆修改：关掉开关但数值没回去时用它。</summary>
+        private async Task RestoreAllAsync()
+        {
+            if (!_bridge.IsConnected) { Ui.Log(_log, "请先连接游戏"); return; }
+
+            var owner = Window.GetWindow(this);
+            var ask = owner != null
+                ? MessageBox.Show(owner,
+                    "这会还原本次连接期间做过的所有可逆修改（攻击系数、速度、外观等）。\n\n" +
+                    "已开启的功能开关也会一并关闭，需要再打开。\n\n确定继续？",
+                    "还原全部修改", MessageBoxButton.OKCancel, MessageBoxImage.Question)
+                : MessageBoxResult.Cancel;
+            if (ask != MessageBoxResult.OK) return;
+
+            try
+            {
+                Ui.Log(_log, "正在还原本次会话的可逆修改…");
+                var r = await _bridge.RestoreAsync();
+                Ui.Log(_log, (r != null && r.Flag("ok") ? "✔ " : "✘ ") + (r?.Str("message") ?? "已提交"));
+                _assistOn = false;
+                _assist.Content = "开启助战预设";
+                RefreshAssistHint();
+                _ = LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                Ui.Log(_log, "还原异常：" + ex.Message);
+            }
+        }
+
         private async Task AssistAsync()
         {
             if (!_bridge.IsConnected) { Ui.Log(_log, "请先连接游戏"); return; }
@@ -559,8 +592,8 @@ namespace PBZTrainer.Views
                 _assist.Content = enable ? "关闭助战预设" : "开启助战预设";
                 RefreshAssistHint();
                 Ui.Log(_log, enable
-                    ? "助战已开启：注意「秒杀 / 伤害倍率」会让生成的敌人一击即死。"
-                    : "助战已关闭：伤害与破防恢复原样，生成的敌人可以正常打。");
+                    ? "助战已开启（不含「秒杀」）：伤害倍率与破防已生效。若之后关掉但伤害仍异常，点旁边「还原全部修改」。"
+                    : "助战已关闭：伤害与破防恢复原样。若伤害仍偏高，点「还原全部修改」。");
             }
             finally
             {

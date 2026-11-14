@@ -132,6 +132,25 @@ namespace PBZTrainer.Views
                 Line("features 数量 = " + ((caps?["features"] as JsonArray)?.Count ?? 0));
                 Line("");
 
+                // 已开启的功能（含数值）：判断“伤害异常”到底是不是本工具引起的
+                Line("=== 当前已开启的功能（含数值） ===");
+                var feats = caps?["features"] as JsonArray;
+                int on = 0;
+                if (feats != null)
+                {
+                    foreach (var f in feats.OfType<JsonObject>())
+                    {
+                        if (!f.Flag("enabled")) continue;
+                        on++;
+                        Line($"  {f.Str("id")}  value={f["value"]}");
+                    }
+                }
+                if (on == 0) Line("  （没有任何功能处于开启状态）");
+                Line("");
+                Line("说明：如果 Boss / 敌人血量异常容易被打空，但上面是空的，");
+                Line("      那就不是本工具造成的——剧情 / 教程首领本身血量就很少。");
+                Line("");
+
                 Line("=== 目录读取 ===");
                 foreach (var type in new[] { "items", "inventory", "enemies", "locations", "quests", "achievements", "appearances", "resources", "weapon_states", "player_skills", "boss_moves", "character_models" })
                 {

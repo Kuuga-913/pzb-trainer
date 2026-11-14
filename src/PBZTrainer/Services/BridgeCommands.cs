@@ -19,6 +19,10 @@ namespace PBZTrainer.Services
                 ["value"] = value
             }, ct, 20000);
 
+        /// <summary>还原本次会话内做过的所有可逆修改（攻击系数 / 速度 / 外观等）。</summary>
+        public Task<JsonObject> RestoreAsync(CancellationToken ct = default)
+            => RequestAsync(new JsonObject { ["command"] = "restore" }, ct, 30000);
+
         public Task<JsonObject> CapabilitiesAsync(CancellationToken ct = default)
             => RequestAsync(new JsonObject { ["command"] = "capabilities" }, ct, 20000);
 
