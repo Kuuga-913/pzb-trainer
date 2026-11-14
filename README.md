@@ -11,17 +11,23 @@
 
 ## 下载
 
-到 [Releases](https://github.com/Kuuga-913/pzb-trainer/releases/latest) 下载：
+**[⬇ 下载 PBZTrainer-v1.0.8-win-x64.exe](https://github.com/Kuuga-913/pzb-trainer/releases/download/v1.0.8/PBZTrainer-v1.0.8-win-x64.exe)**（单文件 71 MB，Windows x64）
 
-| 文件 | 说明 |
+| 项目 | 说明 |
 |---|---|
-| **PBZTrainer-v1.0.10-win-x64.exe** | 单文件 71 MB，Windows x64，**下载双击即用**（启动会弹一次 UAC） |
+| 版本 | **v1.0.8**（当前推荐，附件已上传） |
+| 体积 | 71,025,450 字节（约 67.7 MiB） |
+| 使用 | 下载 → 双击 → UAC 点「是」→ 先开游戏、进存档后即为「● 游戏已就绪」 |
+| 自带 | .NET 8 运行时，免安装，不写注册表、不留服务 |
 
-> 历史版本（v1.0.0 ~ v1.0.9）都在 [Releases 列表](https://github.com/Kuuga-913/pzb-trainer/releases) 里。
-> 注意链接末尾**不要带 `/latest`**——那是“只显示最新版”的单页；带 `/releases` 才是完整列表。
+也可以到 [Releases 列表](https://github.com/Kuuga-913/pzb-trainer/releases) 选任意版本（v1.0.0 ~ v1.0.8 均有附件）。
 
-- 自带 .NET 8 运行时，免安装，不写注册表、不留服务
-- 连不上游戏时右上角会提示，并每 6 秒自动重试
+> **关于 v1.0.9 / v1.0.10**：这两个版本的说明页已发布，但成品附件尚未上传成功（上传链路问题），
+> 因此**请先使用 v1.0.8**。相比 v1.0.8，v1.0.10 的改动是：助战预设移除「秒杀」、生成页新增
+> 「还原全部修改」按钮、诊断页新增「当前已开启的功能」清单——都属于辅助改进，不影响 v1.0.8 的正常使用。
+> 附件补齐后会把这里换成新版。
+>
+> 注意链接末尾带 `/latest` 是「只显示最新版」的单页；带 `/releases` 才是完整列表。
 
 ## 功能总览
 
