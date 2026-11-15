@@ -231,6 +231,12 @@ namespace PBZTrainer.Views
                 it.ProgressText.Foreground = Ui.Brush(ok ? "Jade" : "Warn");
                 it.ProgressText.Text = it.ProgressText.Text + (ok ? "　已完成" : "　已结束");
                 Ui.Log(_log, ok ? "全部条目已回读确认，已有物品未重复添加。" : (result.Str("message") ?? "操作结束，请核对游戏中的已完成部分。"));
+
+                // 饰品兜底：计划里的「饰品」只含未拥有项，可能少于饰品总目录；
+                // 这里按物品目录全量核对一遍，把仍缺的补上（含反击护腕 / 神奇刀鞘 / 妙手千钧 / 妙手连环）。
+                if (!_stoppedByUser && string.Equals(it.Kind, "collection", StringComparison.OrdinalIgnoreCase))
+                    await BackfillAccessoriesAsync();
+
                 ShowSummary(it, _stoppedByUser ? "已停止（已完成部分保留，可再次执行继续）"
                                                 : (ok ? "已完成" : "已结束（可再次执行继续补齐）"));
             }
@@ -299,6 +305,57 @@ namespace PBZTrainer.Views
                     string line = string.IsNullOrEmpty(msg) ? name : (string.IsNullOrEmpty(name) ? msg : name + "　—　" + msg);
                     if (!string.IsNullOrEmpty(line) && !_failedNames.Contains(line)) _failedNames.Add(line);
                 }
+            }
+        }
+
+        /// <summary>饰品兜底核对：按物品目录取全部 accessory，owned==0 的批量补齐并回读。</summary>
+        private async Task BackfillAccessoriesAsync()
+        {
+            try
+            {
+                if (!_bridge.IsConnected) return;
+                Ui.Log(_log, "饰品兜底核对：读取物品目录…");
+                var r = await _bridge.CatalogAsync("items");
+                if (r == null || !r.Flag("ok", false))
+                {
+                    Ui.Log(_log, "饰品核对跳过：" + (r?.Str("message") ?? "目录不可用"));
+                    return;
+                }
+
+                var items = r["items"] as JsonArray;
+                if (items == null) { Ui.Log(_log, "饰品核对跳过：目录为空"); return; }
+
+                int owned = 0;
+                var missing = new List<(string Id, string Name)>();
+                foreach (var node in items.OfType<JsonObject>())
+                {
+                    if (!string.Equals(node.Str("kind") ?? "", "accessory", StringComparison.OrdinalIgnoreCase)) continue;
+                    string id = node.Str("id") ?? "";
+                    if (string.IsNullOrEmpty(id)) continue;
+                    if (node["owned"].Num() >= 1) { owned++; continue; }
+                    missing.Add((id, node.Str("name") ?? id));
+                }
+
+                Ui.Log(_log, $"饰品核对：已拥有 {owned} 项，缺失 {missing.Count} 项");
+                if (missing.Count == 0) return;
+
+                var gr = await _bridge.GrantAsync(missing.Select(x => x.Id), 1);
+                bool ok = gr != null && gr.Flag("ok");
+                string names = string.Join("、", missing.Take(10).Select(x => x.Name)) + (missing.Count > 10 ? " 等" : "");
+                Ui.Log(_log, (ok ? "✔ " : "✘ ") + $"补齐饰品 {missing.Count} 项：{names}");
+                if (ok)
+                {
+                    _statAdded += missing.Count;
+                    foreach (var m in missing) _recordNames.Add(m.Name);
+                }
+                else
+                {
+                    foreach (var m in missing) _failedNames.Add(m.Name + "（饰品补齐失败）");
+                }
+            }
+            catch (Exception ex)
+            {
+                Ui.Log(_log, "饰品核对异常：" + ex.Message);
             }
         }
 

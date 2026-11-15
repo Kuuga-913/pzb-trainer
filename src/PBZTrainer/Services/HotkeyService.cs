@@ -42,7 +42,7 @@ namespace PBZTrainer.Services
 
         private readonly HookProc _proc;
         private IntPtr _hook = IntPtr.Zero;
-        private readonly Dictionary<string, Action> _map = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, (Action Action, bool Always)> _map = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>触发前置判断（例如仅当前台是游戏或本窗口时才响应）。</summary>
         public Func<string, bool> Filter { get; set; }
@@ -64,16 +64,17 @@ namespace PBZTrainer.Services
 
         public void Clear() => _map.Clear();
 
-        public void Register(string combo, Action action)
+        /// <summary>注册热键。<paramref name="always"/> = true 时不受 Filter 限制（用于「唤出修改器」）。</summary>
+        public void Register(string combo, Action action, bool always = false)
         {
             if (string.IsNullOrWhiteSpace(combo) || action == null) return;
-            _map[Normalize(combo)] = action;
+            _map[Normalize(combo)] = (action, always);
         }
 
         public bool IsTaken(string combo, Action except = null)
         {
             string c = Normalize(combo);
-            return _map.TryGetValue(c, out var a) && !ReferenceEquals(a, except);
+            return _map.TryGetValue(c, out var a) && !ReferenceEquals(a.Action, except);
         }
 
         private IntPtr Hook(int nCode, IntPtr wParam, IntPtr lParam)
@@ -82,11 +83,11 @@ namespace PBZTrainer.Services
             {
                 var info = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
                 string combo = CurrentCombo((int)info.vkCode);
-                if (combo != null && _map.TryGetValue(combo, out var act))
+                if (combo != null && _map.TryGetValue(combo, out var entry))
                 {
                     try
                     {
-                        if (Filter == null || Filter(combo)) act();
+                        if (entry.Always || Filter == null || Filter(combo)) entry.Action();
                     }
                     catch { }
                 }

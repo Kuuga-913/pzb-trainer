@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using PBZTrainer.Services;
 
@@ -50,6 +51,40 @@ namespace PBZTrainer.Views
         private readonly ListView _list = new();
         private readonly TextBox _search = Ui.Input("", 200);
         private readonly StackPanel _categoryBar = new() { Orientation = Orientation.Horizontal };
+        private readonly TextBlock _spawnHotkeyLabel = Ui.Sub("");
+        private readonly WrapPanel _spawnHotkeyPicker = new() { Visibility = Visibility.Collapsed };
+        private StateStore _state;
+        /// <summary>由主窗口注入：用于持久化「一键生成」热键。</summary>
+        public StateStore State
+        {
+            get => _state;
+            set
+            {
+                _state = value;
+                RefreshHotkeyLabel();
+            }
+        }
+        /// <summary>热键变更后通知主窗口重新注册全局热键。</summary>
+        public Action OnSpawnHotkeyChanged { get; set; }
+        /// <summary>捕获自定义热键时暂停/恢复全局热键，避免按键被立刻触发。</summary>
+        public Action<bool> OnHotkeyCapture { get; set; }
+
+        private readonly Border _captureLayer = new()
+        {
+            Background = new SolidColorBrush(Color.FromArgb(0xD0, 0x0B, 0x0B, 0x0E)),
+            CornerRadius = new CornerRadius(8),
+            Visibility = Visibility.Collapsed,
+            Focusable = true
+        };
+        private readonly TextBlock _captureHint = new()
+        {
+            Text = "请按下要绑定的组合键…",
+            FontSize = 15,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        private bool _capturing;
+        private ScrollViewer _catScroll;
         private string _categoryValue = "全部";
         private readonly TextBlock _count = Ui.Sub("尚未读取目录");
         private readonly TextBlock _detailTitle = Ui.Text("选择左侧条目", 16, "Text", true);
@@ -127,15 +162,41 @@ namespace PBZTrainer.Views
             _assist = Ui.Button("开启助战预设", () => _ = AssistAsync(), "AccentBtn", 30, 116, 12);
             _restoreAll = Ui.Button("还原全部修改", () => _ = RestoreAllAsync(), "Ghost", 30, 112, 12);
 
-            var catScroll = new ScrollViewer
+            // 分类栏：左右箭头 + 滚轮横向滚动（长分类列表不再「划不过去」）
+            _catScroll = new ScrollViewer
             {
                 Content = _categoryBar,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                Margin = new Thickness(0, 6, 0, 6)
+                Padding = new Thickness(0, 0, 2, 2),
+                Margin = new Thickness(0, 0, 2, 0)
             };
-            Grid.SetRow(catScroll, 1);
-            Children.Add(catScroll);
+            _catScroll.PreviewMouseWheel += (_, e) =>
+            {
+                _catScroll.ScrollToHorizontalOffset(_catScroll.HorizontalOffset - e.Delta);
+                e.Handled = true;
+            };
+
+            var catPrev = Ui.Button("‹", () => ScrollCats(-260), "Ghost", 26, 26, 14);
+            catPrev.ToolTip = "向左滚动分类（也可直接滚鼠标滚轮）";
+            var catNext = Ui.Button("›", () => ScrollCats(260), "Ghost", 26, 26, 14);
+            catNext.ToolTip = "向右滚动分类（也可直接滚鼠标滚轮）";
+            catPrev.Padding = new Thickness(0);
+            catNext.Padding = new Thickness(0);
+            catPrev.Margin = new Thickness(0, 0, 6, 0);
+            catNext.Margin = new Thickness(6, 0, 0, 0);
+
+            var catRow = new Grid { Margin = new Thickness(0, 6, 0, 6) };
+            catRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            catRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            catRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            catRow.Children.Add(catPrev);
+            Grid.SetColumn(_catScroll, 1);
+            catRow.Children.Add(_catScroll);
+            Grid.SetColumn(catNext, 2);
+            catRow.Children.Add(catNext);
+            Grid.SetRow(catRow, 1);
+            Children.Add(catRow);
 
             // 主体
             var body = new Grid();
@@ -149,6 +210,16 @@ namespace PBZTrainer.Views
             Children.Add(body);
 
             _search.TextChanged += (_, __) => ApplyFilter();
+
+            // 自定义热键捕获遮罩：盖住整页，Esc 或点击取消
+            _captureLayer.Child = _captureHint;
+            Grid.SetRow(_captureLayer, 0);
+            Grid.SetRowSpan(_captureLayer, 3);
+            Grid.SetColumnSpan(_captureLayer, 2);
+            Panel.SetZIndex(_captureLayer, 99);
+            _captureLayer.PreviewKeyDown += OnCaptureKeyDown;
+            _captureLayer.MouseLeftButtonDown += (_, __) => EndCapture();
+            Children.Add(_captureLayer);
 
             Loaded += (_, __) => { if (_all.Count == 0) _ = LoadAsync(); };
         }
@@ -281,6 +352,25 @@ namespace PBZTrainer.Views
             }
             stack.Children.Add(actionRow);
             if (_extraRow != null) stack.Children.Add(_extraRow);
+
+            if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive)
+            {
+                var hkRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
+                hkRow.Children.Add(Ui.Text("生成热键", 12, "SubText"));
+                _spawnHotkeyLabel.Margin = new Thickness(8, 0, 8, 0);
+                _spawnHotkeyLabel.VerticalAlignment = VerticalAlignment.Center;
+                hkRow.Children.Add(_spawnHotkeyLabel);
+                hkRow.Children.Add(Ui.Button("选择热键", ToggleHotkeyPicker, "Ghost", 26, 88, 11.5));
+                var clearHk = Ui.Button("清除", ClearSpawnHotkey, "Ghost", 26, 56, 11.5);
+                clearHk.Margin = new Thickness(6, 0, 0, 0);
+                hkRow.Children.Add(clearHk);
+                stack.Children.Add(hkRow);
+
+                _spawnHotkeyPicker.Margin = new Thickness(0, 6, 0, 0);
+                stack.Children.Add(_spawnHotkeyPicker);
+                BuildHotkeyPicker();
+                RefreshHotkeyLabel();
+            }
             if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive)
             {
                 _warn.Margin = new Thickness(0, 8, 0, 0);
@@ -363,6 +453,20 @@ namespace PBZTrainer.Views
                 if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive) _ = SyncAssistStateAsync();
                 RebuildCategories();   // 生成/复活页需要「全部 · 普通敌人 · 首领」这类筛选
                 ApplyFilter();
+
+                // 默认选中第一项：省掉「先点一行」这一步，绑定热键/直接生成更顺手
+                if (_selected == null && _view.Count > 0)
+                {
+                    _list.SelectedIndex = 0;
+                    ShowDetail(_view[0]);
+                }
+
+                // 默认选中第一项：省掉「先点一行」这一步，绑定热键/直接生成更顺手
+                if (_selected == null && _view.Count > 0)
+                {
+                    _list.SelectedIndex = 0;
+                    ShowDetail(_view[0]);
+                }
                 _count.Text = $"{_all.Count} 项";
                 Ui.Log(_log, $"已读取目录：{_all.Count} 项");
             }
@@ -371,6 +475,132 @@ namespace PBZTrainer.Views
                 _count.Text = "目录读取失败";
                 Ui.Log(_log, "读取失败：" + ex.Message);
             }
+        }
+
+        private static readonly string[] HotkeyChoices = { "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4", "Ctrl+5" };
+
+        private void BuildHotkeyPicker()
+        {
+            _spawnHotkeyPicker.Children.Clear();
+            foreach (var combo in HotkeyChoices)
+            {
+                var b = Ui.Button(combo, () => BindSpawnHotkey(combo), "Ghost", 24, 62, 11);
+                b.Margin = new Thickness(0, 0, 6, 6);
+                _spawnHotkeyPicker.Children.Add(b);
+            }
+            var custom = Ui.Button("自定义…", StartCapture, "AccentBtn", 24, 74, 11);
+            custom.Margin = new Thickness(0, 0, 6, 6);
+            _spawnHotkeyPicker.Children.Add(custom);
+            var none = Ui.Button("不绑定", ClearSpawnHotkey, "Ghost", 24, 62, 11);
+            none.Margin = new Thickness(0, 0, 6, 6);
+            _spawnHotkeyPicker.Children.Add(none);
+        }
+
+        private void ToggleHotkeyPicker()
+        {
+            _spawnHotkeyPicker.Visibility = _spawnHotkeyPicker.Visibility == Visibility.Visible
+                ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void StartCapture()
+        {
+            if (_state == null) { Ui.Log(_log, "热键不可用：请先连接游戏"); return; }
+            if (_selected == null) { Ui.Log(_log, "请先在左侧列表里选中一个怪物，再绑定热键"); return; }
+
+            _capturing = true;
+            _spawnHotkeyPicker.Visibility = Visibility.Collapsed;
+            _captureHint.Text = "请按下要绑定的组合键…\n（Esc 或点击空白处取消）";
+            _captureLayer.Visibility = Visibility.Visible;
+            OnHotkeyCapture?.Invoke(true);
+
+            Focusable = true;
+            Keyboard.Focus(this);
+            _captureLayer.Focus();
+        }
+
+        private void EndCapture()
+        {
+            if (!_capturing) return;
+            _capturing = false;
+            _captureLayer.Visibility = Visibility.Collapsed;
+            OnHotkeyCapture?.Invoke(false);
+        }
+
+        private void OnCaptureKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!_capturing) return;
+            e.Handled = true;
+
+            var key = e.Key == Key.System ? e.SystemKey : e.Key;
+            if (key == Key.Escape) { EndCapture(); return; }
+
+            // 只按修饰键时不结束，继续等主键
+            if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
+                or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
+                return;
+
+            var mods = Keyboard.Modifiers;
+            var parts = new List<string>();
+            if (mods.HasFlag(ModifierKeys.Control)) parts.Add("Ctrl");
+            if (mods.HasFlag(ModifierKeys.Alt)) parts.Add("Alt");
+            if (mods.HasFlag(ModifierKeys.Shift)) parts.Add("Shift");
+            if (mods.HasFlag(ModifierKeys.Windows)) parts.Add("Win");
+            parts.Add(HotkeyService.KeyName(KeyInterop.VirtualKeyFromKey(key)));
+
+            string combo = string.Join("+", parts);
+            EndCapture();
+            BindSpawnHotkey(combo);
+        }
+
+        private void BindSpawnHotkey(string combo)
+        {
+            if (_state == null) { Ui.Log(_log, "热键不可用：请先连接游戏"); return; }
+            if (_selected == null) { Ui.Log(_log, "请先在左侧列表里选中一个怪物，再绑定热键"); return; }
+            _state.SpawnHotkey = combo;
+            _state.SpawnHotkeyId = _selected.Id;
+            _state.SpawnHotkeyName = _selected.Name;
+            _state.SpawnHotkeyCount = int.TryParse(_countBox.Text, out var c) ? Math.Clamp(c, 1, 10) : 1;
+            _state.SpawnHotkeyDistance = int.TryParse(_distBox.Text, out var d) ? d : 800;
+            _state.SpawnHotkeyFriendly = _friendly.IsChecked == true;
+
+            _spawnHotkeyPicker.Visibility = Visibility.Collapsed;
+            RefreshHotkeyLabel();
+            OnSpawnHotkeyChanged?.Invoke();
+            Ui.Log(_log, $"已绑定生成热键 {combo} → {_state.SpawnHotkeyName}（{_state.SpawnHotkeyCount} 只，距离 {_state.SpawnHotkeyDistance}）");
+        }
+
+        private void ClearSpawnHotkey()
+        {
+            if (_state == null) return;
+            _state.SpawnHotkey = "";
+            _state.SpawnHotkeyId = "";
+            _state.SpawnHotkeyName = "";
+            _spawnHotkeyPicker.Visibility = Visibility.Collapsed;
+            RefreshHotkeyLabel();
+            OnSpawnHotkeyChanged?.Invoke();
+            Ui.Log(_log, "已清除生成热键");
+        }
+
+        private void RefreshHotkeyLabel()
+        {
+            if (_state == null)
+            {
+                _spawnHotkeyLabel.Text = "（连接后可用）";
+                return;
+            }
+            if (string.IsNullOrEmpty(_state.SpawnHotkey))
+            {
+                _spawnHotkeyLabel.Text = "未绑定 · 选中怪物后可一键生成";
+                return;
+            }
+            _spawnHotkeyLabel.Text = $"{_state.SpawnHotkey} → {_state.SpawnHotkeyName} ×{_state.SpawnHotkeyCount}" +
+                (_state.SpawnHotkeyFriendly ? "（友军）" : "");
+        }
+
+        private void ScrollCats(double delta)
+        {
+            if (_catScroll == null) return;
+            _catScroll.ScrollToHorizontalOffset(_catScroll.HorizontalOffset + delta);
         }
 
         private void RebuildCategories()
@@ -397,18 +627,69 @@ namespace PBZTrainer.Views
         {
             string q = (_search.Text ?? "").Trim();
             string cat = _categoryValue ?? "全部";
+            var terms = q.Split(new[] { ' ', '\u3000' }, StringSplitOptions.RemoveEmptyEntries);
+
             _view.Clear();
-            foreach (var r in _all)
+            if (terms.Length == 0)
             {
-                if (cat != "全部" && r.Category != cat) continue;
-                if (q.Length > 0 &&
-                    !(r.Name?.Contains(q, StringComparison.OrdinalIgnoreCase) == true) &&
-                    !(r.Id?.Contains(q, StringComparison.OrdinalIgnoreCase) == true) &&
-                    !(r.Desc?.Contains(q, StringComparison.OrdinalIgnoreCase) == true)) continue;
-                _view.Add(r);
+                foreach (var r in _all)
+                    if (cat == "全部" || r.Category == cat) _view.Add(r);
             }
+            else
+            {
+                var scored = new List<(CatalogRow Row, int Score)>();
+                foreach (var r in _all)
+                {
+                    if (cat != "全部" && r.Category != cat) continue;
+                    int worst = 0;
+                    bool ok = true;
+                    foreach (var t in terms)
+                    {
+                        int sc = MatchScore(r, t);
+                        if (sc < 0) { ok = false; break; }
+                        worst = Math.Max(worst, sc);
+                    }
+                    if (ok) scored.Add((r, worst));
+                }
+                foreach (var x in scored.OrderBy(x => x.Score).ThenBy(x => x.Row.Name)) _view.Add(x.Row);
+            }
+
             _list.ItemsSource = null;
             _list.ItemsSource = _view;
+
+            if (terms.Length > 0)
+                _count.Text = $"{_view.Count} / {_all.Count} 项";
+            else
+                _count.Text = $"{_all.Count} 项";
+        }
+
+        /// <summary>匹配打分：0 完全相等、1 前缀、2 名称包含、3 代号包含、4 说明包含、5 松散子序列，-1 不匹配。</summary>
+        private static int MatchScore(CatalogRow r, string term)
+        {
+            string name = r.Name ?? "";
+            string id = r.Id ?? "";
+            if (name.Equals(term, StringComparison.OrdinalIgnoreCase)) return 0;
+            if (name.StartsWith(term, StringComparison.OrdinalIgnoreCase)) return 1;
+            if (name.Contains(term, StringComparison.OrdinalIgnoreCase)) return 2;
+            if (id.Contains(term, StringComparison.OrdinalIgnoreCase)) return 3;
+            if ((r.Desc ?? "").Contains(term, StringComparison.OrdinalIgnoreCase)) return 4;
+            if ((r.Category ?? "").Contains(term, StringComparison.OrdinalIgnoreCase)) return 4;
+            if (IsSubsequence(name, term)) return 5;
+            if (IsSubsequence(id, term)) return 5;
+            return -1;
+        }
+
+        /// <summary>子序列匹配：查询字符按顺序出现即可（例如「反腕」命中「反击护腕」）。</summary>
+        private static bool IsSubsequence(string text, string term)
+        {
+            if (string.IsNullOrEmpty(text) || term.Length < 2) return false;
+            int i = 0;
+            foreach (char c in text)
+            {
+                if (i < term.Length && char.ToLowerInvariant(c) == char.ToLowerInvariant(term[i])) i++;
+                if (i == term.Length) return true;
+            }
+            return false;
         }
 
         private void ShowDetail(CatalogRow row)

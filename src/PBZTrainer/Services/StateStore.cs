@@ -20,7 +20,17 @@ namespace PBZTrainer.Services
         public string SelectedPage { get; set; } = "基础功能";
         public bool AutoSave { get; set; } = true;
         public bool OnlyWhenTargetOrPanelForeground { get; set; } = true;
+        /// <summary>启动时是否套用上次的开关与数值（默认开）。</summary>
+        public bool RestoreSettings { get; set; } = true;
         public string PanelToggleHotkey { get; set; } = "F1";
+
+        /// <summary>「一键生成怪物」热键：只在选择了目标怪物后才生效。</summary>
+        public string SpawnHotkey { get; set; } = "";
+        public string SpawnHotkeyId { get; set; } = "";
+        public string SpawnHotkeyName { get; set; } = "";
+        public int SpawnHotkeyCount { get; set; } = 1;
+        public int SpawnHotkeyDistance { get; set; } = 6;
+        public bool SpawnHotkeyFriendly { get; set; }
 
         public string Theme { get; set; } = "雾紫晴岚";
         public List<string> Favorites { get; } = new();
@@ -48,7 +58,14 @@ namespace PBZTrainer.Services
                         AutoSave = Bool(root["AutoSave"], AutoSave);
                         OnlyWhenTargetOrPanelForeground = Bool(root["OnlyWhenTargetOrPanelForeground"], OnlyWhenTargetOrPanelForeground);
                         PanelToggleHotkey = Str(root["PanelToggleHotkey"]) ?? PanelToggleHotkey;
-                        if (root["Features"] is JsonObject feats)
+                        SpawnHotkey = Str(root["SpawnHotkey"]) ?? "";
+                        SpawnHotkeyId = Str(root["SpawnHotkeyId"]) ?? "";
+                        SpawnHotkeyName = Str(root["SpawnHotkeyName"]) ?? "";
+                        SpawnHotkeyCount = Int(root["SpawnHotkeyCount"], 1);
+                        SpawnHotkeyDistance = Int(root["SpawnHotkeyDistance"], 6);
+                        SpawnHotkeyFriendly = Bool(root["SpawnHotkeyFriendly"], false);
+                        RestoreSettings = Bool(root["RestoreSettings"], true);
+                        if (RestoreSettings && root["Features"] is JsonObject feats)
                         {
                             foreach (var kv in feats)
                             {
@@ -111,6 +128,13 @@ namespace PBZTrainer.Services
                     ["AutoSave"] = AutoSave,
                     ["OnlyWhenTargetOrPanelForeground"] = OnlyWhenTargetOrPanelForeground,
                     ["PanelToggleHotkey"] = PanelToggleHotkey,
+                    ["SpawnHotkey"] = SpawnHotkey,
+                    ["SpawnHotkeyId"] = SpawnHotkeyId,
+                    ["SpawnHotkeyName"] = SpawnHotkeyName,
+                    ["SpawnHotkeyCount"] = SpawnHotkeyCount,
+                    ["SpawnHotkeyDistance"] = SpawnHotkeyDistance,
+                    ["SpawnHotkeyFriendly"] = SpawnHotkeyFriendly,
+                    ["RestoreSettings"] = RestoreSettings,
                     ["Features"] = feats
                 };
 
@@ -153,6 +177,13 @@ namespace PBZTrainer.Services
         {
             if (n == null) return null;
             try { return n.GetValue<string>(); } catch { return null; }
+        }
+
+        private static int Int(JsonNode n, int def)
+        {
+            if (n == null) return def;
+            try { return n.GetValue<int>(); } catch { }
+            try { return (int)n.GetValue<double>(); } catch { return def; }
         }
 
         private static bool Bool(JsonNode n, bool def)

@@ -205,6 +205,26 @@ namespace PBZTrainer.Services
             return caps;
         }
 
+        /// <summary>
+        /// 实测无效的功能：桥接回报 applied=true，但游戏内行为没有变化。
+        /// 这些项在界面上会显示「已开启 · 未生效」，避免误以为生效。
+        /// （2026-11 实测：这些功能对应的 hook 目标在当前游戏版本已偏移）
+        /// </summary>
+        private static readonly HashSet<string> KnownIneffective = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "potions_no_cost", "consumables_no_cost",
+            "medicine_infinite", "medicine_count", "medicine_duration"
+        };
+
+        /// <summary>实测「有效果但不完整」的功能说明，显示在卡片提示里。</summary>
+        private static readonly Dictionary<string, string> KnownLimited = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["auto_dodge"] = "只触发普通闪避：红光等「不可闪避」攻击仍会命中，也缺少完美闪避的特效判定。建议配合「闪避无敌窗口」使用。",
+            ["auto_deflect"] = "需先在游戏中手动格挡一次，桥接才能捕获原生格挡动作；未捕获时会提示「格挡能力尚未就绪」。",
+            ["dodge_window"] = "当前版本回报已应用但会被立刻复位（enabled 回读为 false），可能不生效。",
+            ["deflect_window"] = "当前版本回报已应用但会被立刻复位（enabled 回读为 false），可能不生效。"
+        };
+
         /// <summary>把游戏侧状态回填到界面模型。</summary>
         public void ApplyStates(IEnumerable<FeatureVm> items)
         {
@@ -212,8 +232,19 @@ namespace PBZTrainer.Services
             {
                 if (!FeatureStates.TryGetValue(vm.Id, out var s)) continue;
                 vm.IsSupported = IsTrue(s["supported"]) || !s.ContainsKey("supported");
+                vm.ExtraNote = KnownLimited.TryGetValue(vm.Id, out var note) ? note : "";
                 vm.IsSuspended = IsTrue(s["suspended"]);
                 vm.Reason = Str(s["reason"]) ?? "";
+
+                // applied：桥接是否真的把改动写进游戏。缺字段时按已生效处理（老版本桥接没有该字段）。
+                bool applied = !s.ContainsKey("applied") || IsTrue(s["applied"]);
+                if (applied && KnownIneffective.Contains(vm.Id) && IsTrue(s["enabled"]))
+                {
+                    applied = false;
+                    if (string.IsNullOrEmpty(vm.Reason)) vm.Reason = "当前离线版本未生效";
+                }
+                vm.IsApplied = applied;
+
                 if (!vm.IsAction)
                 {
                     vm.IsEnabled = IsTrue(s["enabled"]);

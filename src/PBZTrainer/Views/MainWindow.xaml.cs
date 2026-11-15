@@ -407,8 +407,8 @@ namespace PBZTrainer.Views
                     ("chain", "技能连段", "编排招式依次释放"),
                     ("bossmove", "BOSS 招式", "播放首领招式"),
                     ("resource", "资源设置", "直接设置资源数量"),
-                    ("weapon", "武器状态", "当前武器能力参数"),
                     ("attribute", "角色属性", "直接改写角色属性数值"),
+                    ("hotkeys", "快捷键", "唤出修改器 / 一键生成"),
                     ("diagnostics", "连接诊断", "异常时收集环境与目录信息")
                 }),
                 ("自动化", new[]
@@ -570,9 +570,45 @@ namespace PBZTrainer.Views
                 FeatureHost.Visibility = Visibility.Collapsed;
                 PageHost.Content = GetView(tag);
                 PageHost.Visibility = Visibility.Visible;
+                if (tag == "hotkeys") _hotkeyView?.Refresh();
                 CountBadge.Text = NavModel.SelectMany(g => g.Items).First(i => i.Tag == tag).Label;
             }
             ScheduleSave();
+        }
+
+        /// <summary>生成怪物页：注入状态存储，用于绑定「一键生成」热键。</summary>
+        private HotkeyPickerView _hotkeyView;
+
+        /// <summary>快捷键设置页：唤出/隐藏修改器 + 生成热键总览。</summary>
+        private FrameworkElement MakeHotkeyView()
+        {
+            if (_hotkeyView == null)
+            {
+                _hotkeyView = new HotkeyPickerView(_state,
+                    () =>
+                    {
+                        SaveState();
+                        RebuildHotkeys();
+                    },
+                    paused => _hotkeys.Suspended = paused);
+            }
+            _hotkeyView.Refresh();
+            return _hotkeyView;
+        }
+
+        private CatalogView MakeSpawnView()
+        {
+            var v = new CatalogView(_bridge, CatalogMode.Spawn, "生成怪物",
+                "按原生流程在角色附近生成；可设数量、距离、阵营，右侧可绑定一键生成热键（游戏内也生效）。", "enemies");
+            v.State = _state;
+            v.OnSpawnHotkeyChanged = () =>
+            {
+                SaveState();
+                RebuildHotkeys();
+            };
+            // 捕获自定义热键时暂停全局钩子，否则按键会被立刻当成「热键」触发
+            v.OnHotkeyCapture = paused => _hotkeys.Suspended = paused;
+            return v;
         }
 
         private FrameworkElement GetView(string tag)
@@ -584,8 +620,7 @@ namespace PBZTrainer.Views
                     "完整物品目录，选中后按数量添加；只补缺，不覆盖已有数量。", "items"),
                 "inv" => new CatalogView(_bridge, CatalogMode.Inventory, "背包管理",
                     "修改持有数量或删除整条记录；删除会写入存档，不能撤销。", "inventory"),
-                "spawn" => new CatalogView(_bridge, CatalogMode.Spawn, "生成怪物",
-                    "按游戏原生生成流程在角色附近生成怪物，可设数量（1~10）、距离与阵营。", "enemies"),
+                "spawn" => MakeSpawnView(),
                 "map" => new CatalogView(_bridge, CatalogMode.Travel, "探索与地图",
                     "读取全域地点并直接传送；也可记录当前位置随时返回。", "locations"),
                 "quest" => new ActionListView(_bridge, new ActionSpec
@@ -669,21 +704,6 @@ namespace PBZTrainer.Views
                     PrimaryLabel = "设置数量",
                     Primary = (b, r, v) => b.ResourceSetAsync(r.Id, double.TryParse(v, out var d) ? d : 0)
                 }),
-                "weapon" => new ActionListView(_bridge, new ActionSpec
-                {
-                    Title = "武器状态",
-                    Subtitle = "当前武器的能力参数；断开连接或点「安全恢复」时还原本次修改。",
-                    LoadType = "weapon_states",
-                    StateHeader = "当前值",
-                    ShowValue = true,
-                    ValueLabel = "设为",
-                    ValueDefault = "0",
-                    PrimaryLabel = "应用数值",
-                    Primary = (b, r, v) => b.WeaponStateSetAsync(
-                        r.Id, r.Raw?.Str("identity") ?? "", double.TryParse(v, out var d) ? d : 0),
-                    StateReader = n => n["value"].Num().ToString("0.###"),
-                    EmptyHint = "当前没有可调的武器参数：先装备武器再刷新"
-                }),
                 "attribute" => new ActionListView(_bridge, new ActionSpec
                 {
                     Title = "角色属性",
@@ -699,6 +719,7 @@ namespace PBZTrainer.Views
                     StateReader = n => ""
                 }),
                 "chain" => new SkillChainView(_bridge),
+                "hotkeys" => MakeHotkeyView(),
                 "diagnostics" => new DiagnosticsView(_bridge),
                 "completion" => new CompletionView(_bridge),
                 "minimap" => new MinimapView(_bridge, _overlay),
@@ -847,12 +868,19 @@ namespace PBZTrainer.Views
             _hotkeys.Clear();
             if (!string.IsNullOrEmpty(_state?.PanelToggleHotkey))
             {
-                _hotkeys.Register(_state.PanelToggleHotkey, () => Dispatcher.BeginInvoke(new Action(TogglePanelVisibility)));
+                // 唤出热键不受「仅在游戏/本窗口前台」限制：否则隐藏后按热键唤不出来
+                _hotkeys.Register(_state.PanelToggleHotkey,
+                    () => Dispatcher.BeginInvoke(new Action(TogglePanelVisibility)), always: true);
                 PanelKeyHint.Text = _state.PanelToggleHotkey + " 显隐";
             }
             else
             {
                 PanelKeyHint.Text = "未设置显隐热键";
+            }
+
+            if (!string.IsNullOrEmpty(_state?.SpawnHotkey) && !string.IsNullOrEmpty(_state.SpawnHotkeyId))
+            {
+                _hotkeys.Register(_state.SpawnHotkey, () => Dispatcher.BeginInvoke(new Action(() => _ = SpawnByHotkeyAsync())));
             }
 
             foreach (var vm in _all)
@@ -864,6 +892,27 @@ namespace PBZTrainer.Views
                     if (!_bridge.IsConnected) { ShowToast("请先连接游戏"); return; }
                     captured.IsEnabled = !captured.IsEnabled;
                 })));
+            }
+        }
+
+        /// <summary>按已绑定的热键直接生成上次选中的怪物。</summary>
+        private async Task SpawnByHotkeyAsync()
+        {
+            if (!_bridge.IsConnected) { ShowToast("请先连接游戏"); return; }
+            if (string.IsNullOrEmpty(_state?.SpawnHotkeyId)) { ShowToast("还没有绑定生成热键"); return; }
+
+            try
+            {
+                int count = Math.Clamp(_state.SpawnHotkeyCount, 1, 10);
+                var r = await _bridge.SpawnAsync(_state.SpawnHotkeyId, count, _state.SpawnHotkeyDistance, _state.SpawnHotkeyFriendly);
+                bool ok = r != null && r.Flag("ok");
+                ShowToast(ok
+                    ? $"已生成 {_state.SpawnHotkeyName} ×{count}"
+                    : "生成失败：" + (r?.Str("message") ?? "游戏未响应"));
+            }
+            catch (Exception ex)
+            {
+                ShowToast("生成异常：" + ex.Message);
             }
         }
 
@@ -1002,6 +1051,10 @@ namespace PBZTrainer.Views
                 Show();
                 WindowState = WindowState.Normal;
                 Activate();
+                // 从游戏里唤出时 Windows 会限制前台切换，用 Topmost 抖动强制提到最前
+                bool wasTop = Topmost;
+                Topmost = true;
+                Topmost = wasTop;
             }
         }
 

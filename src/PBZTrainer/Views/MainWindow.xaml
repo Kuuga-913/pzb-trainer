@@ -32,6 +32,19 @@
                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4"/>
                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap"
                                    Foreground="#B9AEBB" FontSize="11.5"/>
+                        <!-- 桥接限制 / 未生效原因 -->
+                        <TextBlock Text="{Binding ExtraNote}" TextWrapping="Wrap"
+                                   Foreground="#D9A441" FontSize="11.5" Margin="0,5,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasExtraNote}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Text="{Binding Id}" Foreground="#6E6673" FontSize="10.5" Margin="0,5,0,0"/>
                     </StackPanel>
                 </Border.ToolTip>
@@ -83,8 +96,23 @@
                     </StackPanel>
 
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding StateText}"
-                               Style="{StaticResource Sub}" VerticalAlignment="Center"
-                               Margin="10,9,0,0"/>
+                               VerticalAlignment="Center" Margin="10,9,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Sub}">
+                                <Style.Triggers>
+                                    <!-- 开了但游戏没生效：橙色，避免误以为已经生效 -->
+                                    <DataTrigger Binding="{Binding ShowNotApplied}" Value="True">
+                                        <Setter Property="Foreground" Value="#D9A441"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsUnsupported}" Value="True">
+                                        <Setter Property="Foreground" Value="#C0392B"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Grid>
             </Border>
         </DataTemplate>

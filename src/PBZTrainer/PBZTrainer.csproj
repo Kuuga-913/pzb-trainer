@@ -12,7 +12,9 @@
     <PlatformTarget>x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
-    <Version>1.0.0</Version>
+    <Version>1.11.15</Version>
+    <AssemblyVersion>1.11.15.0</AssemblyVersion>
+    <FileVersion>1.11.15.0</FileVersion>
     <!-- 可选：把游戏组件打进 exe（发布单文件版用）。默认不打包。 -->
     <EmbedBridge Condition="'$(EmbedBridge)' == ''">false</EmbedBridge>
     <BridgeDll Condition="'$(BridgeDll)' == ''">$(MSBuildThisFileDirectory)Data\PBZBridge.dll</BridgeDll>
