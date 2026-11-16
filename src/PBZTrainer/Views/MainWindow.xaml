@@ -316,7 +316,8 @@
                     HorizontalAlignment="Center" Margin="0,0,0,58" CornerRadius="8"
                     Background="#E61E1B23" BorderThickness="1" BorderBrush="{DynamicResource Border}"
                     Padding="16,9" Opacity="0" IsHitTestVisible="False">
-                <TextBlock x:Name="ToastText" Text="" FontSize="12" Foreground="#EDE7E0"/>
+                <TextBlock x:Name="ToastText" Text="" FontSize="12" Foreground="#EDE7E0"
+                           TextWrapping="Wrap" MaxWidth="520" TextAlignment="Center"/>
             </Border>
 
             <!-- 快捷键录入遮罩 -->

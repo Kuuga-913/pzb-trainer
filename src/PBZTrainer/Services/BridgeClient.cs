@@ -43,6 +43,12 @@ namespace PBZTrainer.Services
         public int TargetPid { get; private set; }
         public bool IsConnected => State == BridgeState.Connected && _pipe != null && _pipe.IsConnected;
 
+        /// <summary>连接失败时追加给玩家的排查建议（不含失败原因本身）。</summary>
+        public const string ModHint = "如果游戏装了 mod，请先把 mod 关闭后再连接一次。";
+
+        /// <summary>上一次连接失败的建议；连接成功或主动断开后清空。</summary>
+        public string FailureHint { get; private set; } = "";
+
         public string Player { get; private set; } = "";
         public string World { get; private set; } = "";
         public string Scene { get; private set; } = "";
@@ -81,10 +87,17 @@ namespace PBZTrainer.Services
                 {
                     if (!allowInject) throw new InvalidOperationException("游戏接口尚未就绪");
                     string dll = Injector.ResolveBridgePath();
-                    if (dll == null) throw new FileNotFoundException("缺少游戏组件 PBZBridge.dll：请把它放到本程序同目录，或设置环境变量 PBZ_BRIDGE 指向它");
-                    log?.Invoke("注入组件：" + dll);
+                    if (dll == null)
+                    {
+                        string detail = Injector.Sanitize(Injector.LastExtractError ?? "");
+                        throw new FileNotFoundException(
+                            "运行环境未就绪，暂时无法连接游戏。" +
+                            (string.IsNullOrEmpty(detail) ? "" : "系统返回：" + detail + "。") +
+                            "多为杀毒软件拦截，请把程序文件夹与 %LOCALAPPDATA%\\影之刃零修改器 加入白名单后重开。");
+                    }
+                    log?.Invoke("准备运行模块：" + dll);
                     long handle = await Task.Run(() => Injector.Inject(game.Pid, dll));
-                    log?.Invoke("组件已加载 0x" + handle.ToString("X"));
+                    log?.Invoke("运行模块已加载 0x" + handle.ToString("X"));
                 }
 
                 // 解除「高级功能」门禁（只改游戏进程内存，不动磁盘文件）
@@ -126,6 +139,7 @@ namespace PBZTrainer.Services
                 if (gameId != GameId) throw new InvalidOperationException("游戏版本与本程序不匹配，请使用与该游戏版本对应的程序");
 
                 State = BridgeState.Connected;
+                FailureHint = "";
                 LastMessage = Str(hello["message"]) ?? "已连接";
                 ResetAuthorization(hello);
                 await RefreshAsync();
@@ -141,6 +155,9 @@ namespace PBZTrainer.Services
                 LastMessage = Native.PipeBusy(Injector.PipeName(game.Pid))
                     ? "连接被占用：已有另一个修改器窗口连着，或上次异常退出留下了会话。先关掉其他窗口；仍不行就完全退出游戏再重开一次。"
                     : Friendly(ex);
+                // mod 会改游戏文件或内存，容易导致注入失败、握手超时或版本不匹配；
+                // 「缺少组件」是本地文件问题，跟 mod 无关，不提示。
+                FailureHint = ex is FileNotFoundException ? "" : ModHint;
                 DisposePipe();
                 Raise();
                 return false;
@@ -400,6 +417,7 @@ namespace PBZTrainer.Services
         public void Disconnect()
         {
             DisposePipe();
+            FailureHint = "";
             if (State != BridgeState.GameMissing) State = BridgeState.Disconnected;
             Ready = false;
             LastMessage = "未连接";

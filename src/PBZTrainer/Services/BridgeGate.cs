@@ -74,7 +74,7 @@ namespace PBZTrainer.Services
             IntPtr baseAddr = FindModuleBase(pid, Injector.BridgeFileName);
             if (baseAddr == IntPtr.Zero)
             {
-                note = "游戏内未找到组件模块";
+                note = "游戏内未找到运行模块";
                 return false;
             }
 
@@ -109,7 +109,7 @@ namespace PBZTrainer.Services
                     // 还没解密完成 / 不是跳转：等一下再读，别乱改
                     if (cur[0] != 0xE9)
                     {
-                        last = $"判定入口不是预期跳转（{cur[0]:X2}），等待组件就绪";
+                        last = $"判定入口不是预期跳转（{cur[0]:X2}），等待运行模块就绪";
                         System.Threading.Thread.Sleep(300);
                         continue;
                     }
@@ -138,7 +138,7 @@ namespace PBZTrainer.Services
                     System.Threading.Thread.Sleep(300);
                 }
 
-                note = last + "；组件版本可能不同";
+                note = last + "；运行模块版本可能不同";
                 return false;
             }
             finally

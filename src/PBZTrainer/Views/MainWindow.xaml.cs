@@ -118,51 +118,36 @@ namespace PBZTrainer.Views
 
         // ---------- 连接 ----------
 
-        private bool _bridgePrompted;
+        private bool _runtimePrompted;
 
-        /// <summary>缺少游戏组件时，让用户选一次并自动复制到程序目录。</summary>
-        private bool EnsureBridgeComponent()
+        /// <summary>
+        /// 运行模块没就绪时给一次性说明。不再要求用户去找/选任何文件，
+        /// 也完全不提内部文件名——只给可操作的白名单步骤。
+        /// </summary>
+        private bool EnsureRuntimeReady()
         {
             if (Injector.ResolveBridgePath() != null) return true;
-            if (_bridgePrompted) return false;
-            _bridgePrompted = true;
+            if (_runtimePrompted) return false;
+            _runtimePrompted = true;
 
             var owner = Window.GetWindow(this);
-            var ask = owner != null
-                ? MessageBox.Show(owner,
-                    "还差一个游戏组件：PBZBridge.dll\n\n" +
-                    "它在你安装的原修改器目录里（或游戏目录）。\n" +
-                    "点「确定」选择这个文件，程序会自动复制一份到本程序旁边，以后不用再选。\n\n" +
-                    "如果暂时没有，也可以稍后手动把 PBZBridge.dll 放到 PBZTrainer.exe 同目录。",
-                    "选择 PBZBridge.dll", MessageBoxButton.OKCancel, MessageBoxImage.Information)
-                : MessageBox.Show(
-                    "还差一个游戏组件：PBZBridge.dll\n\n请把它放到 PBZTrainer.exe 同目录。",
-                    "选择 PBZBridge.dll", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-            if (ask != MessageBoxResult.OK) return false;
+            string detail = Injector.Sanitize(Injector.LastExtractError ?? "");
 
-            var dlg = new Microsoft.Win32.OpenFileDialog
-            {
-                Title = "选择 PBZBridge.dll",
-                Filter = "游戏组件 (PBZBridge.dll)|PBZBridge.dll|所有 DLL|*.dll",
-                CheckFileExists = true
-            };
-            bool? picked = owner != null ? dlg.ShowDialog(owner) : dlg.ShowDialog();
-            if (picked != true) return false;
+            string body =
+                "程序自带的运行模块没能就绪，暂时连不上游戏。\n\n" +
+                (string.IsNullOrEmpty(detail) ? "" : "系统返回：" + detail + "\n\n") +
+                "通常是杀毒软件把它拦下了。按顺序试：\n" +
+                "1. 把本程序所在的整个文件夹加入杀毒软件白名单\n" +
+                "   （Windows 安全中心 → 病毒和威胁防护 → 管理设置 → 排除项 → 添加文件夹）\n" +
+                "2. 同样把  %LOCALAPPDATA%\\影之刃零修改器  加入排除项\n" +
+                "3. 完全关闭本程序，再重新打开\n\n" +
+                "如果仍然不行：打开「更多 → 连接诊断 → 开始诊断」，把内容发给作者。";
 
-            try
-            {
-                string dest = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Injector.BridgeFileName);
-                System.IO.File.Copy(dlg.FileName, dest, true);
-                ShowToast("游戏组件已就位");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(owner ?? (Window)this,
-                    "复制失败：" + ex.Message + "\n\n可以手动把 PBZBridge.dll 放到程序目录。",
-                    "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
+            if (owner != null)
+                MessageBox.Show(owner, body, "运行环境未就绪", MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                MessageBox.Show(body, "运行环境未就绪", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
         }
 
         private async Task AutoConnectAsync()
@@ -175,9 +160,9 @@ namespace PBZTrainer.Views
                 ConnectButton.Content = "连接中…";
                 ConnectButton.IsEnabled = false;
 
-                if (!EnsureBridgeComponent())
+                if (!EnsureRuntimeReady())
                 {
-                    SetStatus("未找到游戏组件", "#D9A441", "!");
+                    SetStatus("运行环境未就绪", "#D9A441", "!");
                     ConnectButton.Content = "连接游戏";
                     return;
                 }
@@ -192,7 +177,16 @@ namespace PBZTrainer.Views
                     RebuildHotkeys();
                     ShowToast(_bridge.GateOk
                         ? "已连接游戏 · " + (_bridge.Ready ? "角色状态就绪" : "请进入存档")
-                        : "已连接，但高级功能校验未解除：部分功能可能提示需要解锁（组件版本可能不同）");
+                        : "已连接，但功能校验未解除：部分功能可能提示需要解锁（可能与游戏版本不匹配）");
+                }
+                else if (_bridge.State == BridgeState.Error)
+                {
+                    // 连接失败时把原因和排查建议一起放到提示条：状态栏放不下长句
+                    string reason = string.IsNullOrWhiteSpace(_bridge.LastMessage) ? "连接游戏失败" : _bridge.LastMessage.Trim();
+                    string hint = _bridge.FailureHint;
+                    if (!string.IsNullOrEmpty(hint))
+                        reason = (reason.EndsWith("。") ? reason : reason + "。") + hint;
+                    ShowToast(reason, 6);
                 }
             }
             finally

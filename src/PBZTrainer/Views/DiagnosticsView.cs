@@ -95,9 +95,43 @@ namespace PBZTrainer.Views
 
             Line("影之刃零修改器 · 连接诊断");
             Line("时间：" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            Line("程序版本：v1.0.5（本地构建）");
+            string ver;
+            try { ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"; }
+            catch { ver = "?"; }
+            Line("程序版本：v" + ver);
             Line("系统：" + Environment.OSVersion.VersionString + " · " + (Environment.Is64BitProcess ? "x64" : "x86"));
             Line("管理员：" + (IsAdmin() ? "是" : "否"));
+            Line("");
+
+            // 运行模块状态：排查环境问题时最关键的一段（不显示内部文件名）
+            Line("=== 运行模块 ===");
+            Line("自带运行模块：" + (Injector.HasEmbeddedBridge ? "是" : "否（当前程序不含，请重新下载）"));
+            string compPath = null;
+            try { compPath = Injector.ResolveBridgePath(); } catch (Exception ex) { Line("解析路径异常：" + ex.Message); }
+            Line("所在目录：" + (string.IsNullOrEmpty(compPath) ? "（未就绪）" : System.IO.Path.GetDirectoryName(compPath)));
+            if (!string.IsNullOrEmpty(compPath))
+            {
+                try
+                {
+                    var fi = new System.IO.FileInfo(compPath);
+                    Line("文件大小：" + fi.Length + " 字节" + (fi.Exists ? "" : "（文件不存在！）"));
+                }
+                catch { }
+                string src = "其他";
+                try
+                {
+                    string la = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    string tmp = System.IO.Path.GetTempPath();
+                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    if (compPath.StartsWith(la, StringComparison.OrdinalIgnoreCase)) src = "已释放到 %LOCALAPPDATA%";
+                    else if (compPath.StartsWith(tmp, StringComparison.OrdinalIgnoreCase)) src = "已释放到 %TEMP%";
+                    else if (compPath.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase)) src = "程序目录";
+                }
+                catch { }
+                Line("来源：" + src);
+            }
+            if (!string.IsNullOrEmpty(Injector.LastExtractError))
+                Line("未就绪原因：" + Injector.Sanitize(Injector.LastExtractError));
             Line("");
 
             var games = Injector.Candidates().Select(p => { try { return p.Id + " " + p.MainModule.FileName; } catch { return p.Id + " (路径不可读)"; } }).ToList();
@@ -105,12 +139,13 @@ namespace PBZTrainer.Views
 
             var game = Injector.FindGame();
             Line("选中进程：" + (game == null ? "无（可能权限不足或未启动）" : $"{game.Pid} · {game.ExePath}"));
-            Line("组件已加载：" + (game != null ? (Injector.BridgeIsLoaded(game.Pid) ? "是" : "否") : "-"));
+            Line("运行模块已加载：" + (game != null ? (Injector.BridgeIsLoaded(game.Pid) ? "是" : "否") : "-"));
             Line("");
 
             if (!_bridge.IsConnected)
             {
                 Line("当前未连接。状态：" + _bridge.State + " · " + _bridge.LastMessage);
+                if (!string.IsNullOrEmpty(_bridge.FailureHint)) Line("建议：" + _bridge.FailureHint);
                 Line("可尝试：关闭其他修改器窗口 → 以管理员运行 → 完全退出游戏重开。");
                 _output.Text = sb.ToString();
                 _status.Text = "未连接，已生成基础信息";
