@@ -201,7 +201,7 @@ namespace PBZTrainer.Views
             // 主体
             var body = new Grid();
             body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.35, GridUnitType.Star) });
-            body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(430) });
+            body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(470) });
             body.Children.Add(BuildList());
             var detail = BuildDetail();
             Grid.SetColumn(detail, 1);
@@ -303,74 +303,84 @@ namespace PBZTrainer.Views
             stack.Children.Add(new Border { Height = 1, Background = Ui.Brush("Divider"), Margin = new Thickness(0, 8, 0, 8) });
             stack.Children.Add(_desc);
 
-            var actionRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            // 通用：参数行用 WrapPanel，窗口再窄也会换行而不是被裁掉
+            var paramRow = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
             switch (_mode)
             {
                 case CatalogMode.Grant:
-                    actionRow.Children.Add(Ui.Sub("数量"));
-                    _countBox.Margin = new Thickness(6, 0, 12, 0);
-                    actionRow.Children.Add(_countBox);
-                    actionRow.Children.Add(_primary);
+                    AddParam(paramRow, "数量", _countBox);
                     break;
                 case CatalogMode.Inventory:
-                    actionRow.Children.Add(Ui.Sub("目标数量"));
-                    _countBox.Margin = new Thickness(6, 0, 12, 0);
-                    actionRow.Children.Add(_countBox);
-                    actionRow.Children.Add(_primary);
-                    _delete.Margin = new Thickness(8, 0, 0, 0);
-                    actionRow.Children.Add(_delete);
+                    AddParam(paramRow, "目标数量", _countBox);
                     break;
                 case CatalogMode.Spawn:
                 case CatalogMode.Revive:
-                    actionRow.Children.Add(Ui.Sub("数量"));
                     _countBox.Text = "1";
-                    _countBox.Margin = new Thickness(6, 0, 10, 0);
-                    actionRow.Children.Add(_countBox);
-                    actionRow.Children.Add(Ui.Sub("距离"));
-                    _distBox.Margin = new Thickness(6, 0, 10, 0);
-                    actionRow.Children.Add(_distBox);
-                    _friendly.Margin = new Thickness(0, 0, 10, 0);
-                    actionRow.Children.Add(_friendly);
-                    actionRow.Children.Add(_primary);
-
-                    _extraRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
-                    _extraRow.Children.Add(_assist);
-                    _restoreAll.Margin = new Thickness(8, 0, 0, 0);
-                    _extraRow.Children.Add(_restoreAll);
-                    _record.Margin = new Thickness(8, 0, 0, 0);
-                    _extraRow.Children.Add(_record);
-                    _back.Margin = new Thickness(8, 0, 0, 0);
-                    _extraRow.Children.Add(_back);
-                    break;
-                case CatalogMode.Travel:
-                    actionRow.Children.Add(_primary);
-                    _record.Margin = new Thickness(8, 0, 0, 0);
-                    actionRow.Children.Add(_record);
-                    _back.Margin = new Thickness(8, 0, 0, 0);
-                    actionRow.Children.Add(_back);
+                    AddParam(paramRow, "数量", _countBox);
+                    AddParam(paramRow, "距离", _distBox);
+                    _friendly.Margin = new Thickness(0, 0, 10, 6);
+                    _friendly.VerticalAlignment = VerticalAlignment.Center;
+                    paramRow.Children.Add(_friendly);
                     break;
             }
-            stack.Children.Add(actionRow);
-            if (_extraRow != null) stack.Children.Add(_extraRow);
+            if (paramRow.Children.Count > 0) stack.Children.Add(paramRow);
 
+            // 主操作：独占一行、拉满宽度，永远可见
+            _primary.HorizontalAlignment = HorizontalAlignment.Stretch;
+            _primary.Margin = new Thickness(0, 8, 0, 0);
+            stack.Children.Add(_primary);
+
+            // 次要操作：自动换行
+            var extra = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
+            if (_mode == CatalogMode.Inventory)
+            {
+                extra.Children.Add(_delete);
+            }
+            else if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive)
+            {
+                extra.Children.Add(_assist);
+                extra.Children.Add(_restoreAll);
+                extra.Children.Add(_record);
+                extra.Children.Add(_back);
+            }
+            else if (_mode == CatalogMode.Travel)
+            {
+                extra.Children.Add(_record);
+                extra.Children.Add(_back);
+            }
+            if (extra.Children.Count > 0)
+            {
+                foreach (UIElement child in extra.Children)
+                    if (child is FrameworkElement fe) fe.Margin = new Thickness(0, 0, 8, 6);
+                stack.Children.Add(extra);
+            }
+
+            // 生成热键：标题 / 当前值 / 按钮 三段式，纵向排列，任何长度都不会挤掉按钮
             if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive)
             {
-                var hkRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
-                hkRow.Children.Add(Ui.Text("生成热键", 12, "SubText"));
-                _spawnHotkeyLabel.Margin = new Thickness(8, 0, 8, 0);
-                _spawnHotkeyLabel.VerticalAlignment = VerticalAlignment.Center;
-                hkRow.Children.Add(_spawnHotkeyLabel);
-                hkRow.Children.Add(Ui.Button("选择热键", ToggleHotkeyPicker, "Ghost", 26, 88, 11.5));
-                var clearHk = Ui.Button("清除", ClearSpawnHotkey, "Ghost", 26, 56, 11.5);
-                clearHk.Margin = new Thickness(6, 0, 0, 0);
-                hkRow.Children.Add(clearHk);
-                stack.Children.Add(hkRow);
+                var hkTitle = Ui.Text("生成热键", 12, "SubText");
+                hkTitle.Margin = new Thickness(0, 6, 0, 4);
+                stack.Children.Add(hkTitle);
 
-                _spawnHotkeyPicker.Margin = new Thickness(0, 6, 0, 0);
+                _spawnHotkeyLabel.TextWrapping = TextWrapping.Wrap;
+                _spawnHotkeyLabel.TextTrimming = TextTrimming.None;
+                _spawnHotkeyLabel.Margin = new Thickness(0, 0, 0, 6);
+                _spawnHotkeyLabel.ToolTip = "当前怪物绑定的热键（每个怪物各自独立）";
+                stack.Children.Add(_spawnHotkeyLabel);
+
+                var hkButtons = new WrapPanel();
+                hkButtons.Children.Add(Ui.Button("选择热键", ToggleHotkeyPicker, "Ghost", 28, 92, 11.5));
+                var clearHk = Ui.Button("清除本怪物的热键", ClearSpawnHotkey, "Ghost", 28, 132, 11.5);
+                clearHk.Margin = new Thickness(8, 0, 0, 0);
+                hkButtons.Children.Add(clearHk);
+                stack.Children.Add(hkButtons);
+
+                _spawnHotkeyPicker.Margin = new Thickness(0, 8, 0, 0);
                 stack.Children.Add(_spawnHotkeyPicker);
                 BuildHotkeyPicker();
                 RefreshHotkeyLabel();
             }
+
             if (_mode == CatalogMode.Spawn || _mode == CatalogMode.Revive)
             {
                 _warn.Margin = new Thickness(0, 8, 0, 0);
@@ -393,6 +403,16 @@ namespace PBZTrainer.Views
             });
             panel.Margin = new Thickness(10, 0, 0, 0);
             return panel;
+        }
+
+        /// <summary>「标签 + 输入框」成对放进 WrapPanel，宽度不够时整对换行。</summary>
+        private static void AddParam(WrapPanel row, string label, FrameworkElement box)
+        {
+            var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 14, 6), VerticalAlignment = VerticalAlignment.Center };
+            sp.Children.Add(Ui.Sub(label));
+            box.Margin = new Thickness(6, 0, 0, 0);
+            sp.Children.Add(box);
+            row.Children.Add(sp);
         }
 
         // ---------- 数据 ----------
@@ -556,29 +576,80 @@ namespace PBZTrainer.Views
         {
             if (_state == null) { Ui.Log(_log, "热键不可用：请先连接游戏"); return; }
             if (_selected == null) { Ui.Log(_log, "请先在左侧列表里选中一个怪物，再绑定热键"); return; }
-            _state.SpawnHotkey = combo;
-            _state.SpawnHotkeyId = _selected.Id;
-            _state.SpawnHotkeyName = _selected.Name;
-            _state.SpawnHotkeyCount = int.TryParse(_countBox.Text, out var c) ? Math.Clamp(c, 1, 10) : 1;
-            _state.SpawnHotkeyDistance = int.TryParse(_distBox.Text, out var d) ? d : 800;
-            _state.SpawnHotkeyFriendly = _friendly.IsChecked == true;
+
+            string norm = HotkeyService.Normalize(combo);
+
+            // 唤出热键冲突
+            if (!string.IsNullOrEmpty(_state.PanelToggleHotkey) &&
+                HotkeyService.Normalize(_state.PanelToggleHotkey) == norm)
+            {
+                Warn($"「{combo}」已经是「唤出修改器」的热键，请换一个。");
+                Ui.Log(_log, $"绑定失败：{combo} 已被唤出热键占用");
+                return;
+            }
+
+            // 其他怪物已占用
+            foreach (var kv in _state.SpawnBindings)
+            {
+                if (kv.Key.Equals(_selected.Id, StringComparison.OrdinalIgnoreCase)) continue;
+                if (string.IsNullOrEmpty(kv.Value.Hotkey)) continue;
+                if (HotkeyService.Normalize(kv.Value.Hotkey) != norm) continue;
+                string who = string.IsNullOrEmpty(kv.Value.Name) ? kv.Key : kv.Value.Name;
+                Warn($"「{combo}」已经绑给「{who}」了。\n\n每个怪物要用不同的组合键；如果要改，先去那个怪物上点「清除」。");
+                Ui.Log(_log, $"绑定失败：{combo} 已被「{who}」占用");
+                return;
+            }
+
+            int count = int.TryParse(_countBox.Text, out var c) ? Math.Clamp(c, 1, 10) : 1;
+            int distance = int.TryParse(_distBox.Text, out var d) ? d : 800;
+
+            _state.SpawnBindings[_selected.Id] = new SpawnBinding
+            {
+                Hotkey = combo,
+                Name = _selected.Name,
+                Count = count,
+                Distance = distance,
+                Friendly = _friendly.IsChecked == true
+            };
 
             _spawnHotkeyPicker.Visibility = Visibility.Collapsed;
             RefreshHotkeyLabel();
             OnSpawnHotkeyChanged?.Invoke();
-            Ui.Log(_log, $"已绑定生成热键 {combo} → {_state.SpawnHotkeyName}（{_state.SpawnHotkeyCount} 只，距离 {_state.SpawnHotkeyDistance}）");
+            Ui.Log(_log, $"已为「{_selected.Name}」绑定 {combo}（{count} 只，距离 {distance}）；" +
+                         $"当前共 {CountBindings()} 个怪物热键");
         }
 
         private void ClearSpawnHotkey()
         {
             if (_state == null) return;
-            _state.SpawnHotkey = "";
-            _state.SpawnHotkeyId = "";
-            _state.SpawnHotkeyName = "";
+            if (_selected == null) { Ui.Log(_log, "请先选中要清除热键的怪物"); return; }
+
+            if (_state.SpawnBindings.Remove(_selected.Id))
+                Ui.Log(_log, $"已清除「{_selected.Name}」的热键；当前共 {CountBindings()} 个怪物热键");
+            else
+                Ui.Log(_log, "该怪物还没有绑定热键");
+
             _spawnHotkeyPicker.Visibility = Visibility.Collapsed;
             RefreshHotkeyLabel();
             OnSpawnHotkeyChanged?.Invoke();
-            Ui.Log(_log, "已清除生成热键");
+        }
+
+        private int CountBindings()
+        {
+            if (_state == null) return 0;
+            int n = 0;
+            foreach (var kv in _state.SpawnBindings)
+                if (!string.IsNullOrEmpty(kv.Value.Hotkey)) n++;
+            return n;
+        }
+
+        private void Warn(string text)
+        {
+            var owner = Window.GetWindow(this);
+            if (owner != null)
+                MessageBox.Show(owner, text, "热键冲突", MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                MessageBox.Show(text, "热键冲突", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void RefreshHotkeyLabel()
@@ -588,14 +659,29 @@ namespace PBZTrainer.Views
                 _spawnHotkeyLabel.Text = "（连接后可用）";
                 return;
             }
-            if (string.IsNullOrEmpty(_state.SpawnHotkey))
+
+            int total = CountBindings();
+            if (_selected == null)
             {
-                _spawnHotkeyLabel.Text = "未绑定 · 选中怪物后可一键生成";
+                _spawnHotkeyLabel.Text = total > 0
+                    ? $"已为 {total} 个怪物绑定热键 · 选中可继续绑"
+                    : "选中怪物后可为它单独绑热键";
                 return;
             }
-            _spawnHotkeyLabel.Text = $"{_state.SpawnHotkey} → {_state.SpawnHotkeyName} ×{_state.SpawnHotkeyCount}" +
-                (_state.SpawnHotkeyFriendly ? "（友军）" : "");
+
+            if (_state.SpawnBindings.TryGetValue(_selected.Id, out var b) && !string.IsNullOrEmpty(b.Hotkey))
+            {
+                _spawnHotkeyLabel.Text = $"{b.Hotkey} → {_selected.Name} ×{b.Count}" +
+                    (b.Friendly ? "（友军）" : "") +
+                    (total > 1 ? $"　（共 {total} 个）" : "");
+                return;
+            }
+
+            _spawnHotkeyLabel.Text = total > 0
+                ? $"本怪物未绑定　（已有 {total} 个怪物热键）"
+                : "本怪物未绑定";
         }
+
 
         private void ScrollCats(double delta)
         {
@@ -695,6 +781,7 @@ namespace PBZTrainer.Views
         private void ShowDetail(CatalogRow row)
         {
             _selected = row;
+            RefreshHotkeyLabel();
             _detailTitle.Text = row.Name;
             _detailMeta.Text = $"{row.Category}  ·  {row.Id}";
             _desc.Text = string.IsNullOrWhiteSpace(row.Desc) ? "（无说明）" : row.Desc;

@@ -11,6 +11,16 @@ namespace PBZTrainer.Services
     /// 状态持久化：完全沿用原版 trainer_state.json 的字段结构
     /// （SelectedPage / AutoSave / OnlyWhenTargetOrPanelForeground / PanelToggleHotkey / Features{Enabled,Value,Hotkey}）。
     /// </summary>
+    /// <summary>单个怪物的一键生成热键绑定（每个怪物各自一套参数）。</summary>
+    public sealed class SpawnBinding
+    {
+        public string Hotkey { get; set; } = "";
+        public string Name { get; set; } = "";
+        public int Count { get; set; } = 1;
+        public int Distance { get; set; } = 800;
+        public bool Friendly { get; set; }
+    }
+
     public sealed class StateStore
     {
         public string Directory { get; }
@@ -24,7 +34,10 @@ namespace PBZTrainer.Services
         public bool RestoreSettings { get; set; } = true;
         public string PanelToggleHotkey { get; set; } = "F1";
 
-        /// <summary>「一键生成怪物」热键：只在选择了目标怪物后才生效。</summary>
+        /// <summary>每个怪物各自的一键生成热键：怪物 id → 绑定（可同时绑多个）。</summary>
+        public Dictionary<string, SpawnBinding> SpawnBindings { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>旧版单条绑定，仅用于迁移到 SpawnBindings。</summary>
         public string SpawnHotkey { get; set; } = "";
         public string SpawnHotkeyId { get; set; } = "";
         public string SpawnHotkeyName { get; set; } = "";
@@ -64,6 +77,37 @@ namespace PBZTrainer.Services
                         SpawnHotkeyCount = Int(root["SpawnHotkeyCount"], 1);
                         SpawnHotkeyDistance = Int(root["SpawnHotkeyDistance"], 6);
                         SpawnHotkeyFriendly = Bool(root["SpawnHotkeyFriendly"], false);
+
+                        SpawnBindings.Clear();
+                        if (root["SpawnBindings"] is JsonObject binds)
+                        {
+                            foreach (var kv in binds)
+                            {
+                                if (string.IsNullOrWhiteSpace(kv.Key) || kv.Value is not JsonObject o) continue;
+                                SpawnBindings[kv.Key] = new SpawnBinding
+                                {
+                                    Hotkey = Str(o["Hotkey"]) ?? "",
+                                    Name = Str(o["Name"]) ?? "",
+                                    Count = Int(o["Count"], 1),
+                                    Distance = Int(o["Distance"], 800),
+                                    Friendly = Bool(o["Friendly"], false)
+                                };
+                            }
+                        }
+
+                        // 旧版单条绑定迁移成一条记录
+                        if (!string.IsNullOrEmpty(SpawnHotkey) && !string.IsNullOrEmpty(SpawnHotkeyId)
+                            && !SpawnBindings.ContainsKey(SpawnHotkeyId))
+                        {
+                            SpawnBindings[SpawnHotkeyId] = new SpawnBinding
+                            {
+                                Hotkey = SpawnHotkey,
+                                Name = SpawnHotkeyName,
+                                Count = SpawnHotkeyCount <= 0 ? 1 : SpawnHotkeyCount,
+                                Distance = SpawnHotkeyDistance <= 0 ? 800 : SpawnHotkeyDistance,
+                                Friendly = SpawnHotkeyFriendly
+                            };
+                        }
                         RestoreSettings = Bool(root["RestoreSettings"], true);
                         if (RestoreSettings && root["Features"] is JsonObject feats)
                         {
@@ -122,18 +166,27 @@ namespace PBZTrainer.Services
                     };
                 }
 
+                var spawnBinds = new JsonObject();
+                foreach (var kv in SpawnBindings)
+                {
+                    if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrEmpty(kv.Value?.Hotkey)) continue;
+                    spawnBinds[kv.Key] = new JsonObject
+                    {
+                        ["Hotkey"] = kv.Value.Hotkey,
+                        ["Name"] = kv.Value.Name ?? "",
+                        ["Count"] = kv.Value.Count,
+                        ["Distance"] = kv.Value.Distance,
+                        ["Friendly"] = kv.Value.Friendly
+                    };
+                }
+
                 var root = new JsonObject
                 {
                     ["SelectedPage"] = SelectedPage,
                     ["AutoSave"] = AutoSave,
                     ["OnlyWhenTargetOrPanelForeground"] = OnlyWhenTargetOrPanelForeground,
                     ["PanelToggleHotkey"] = PanelToggleHotkey,
-                    ["SpawnHotkey"] = SpawnHotkey,
-                    ["SpawnHotkeyId"] = SpawnHotkeyId,
-                    ["SpawnHotkeyName"] = SpawnHotkeyName,
-                    ["SpawnHotkeyCount"] = SpawnHotkeyCount,
-                    ["SpawnHotkeyDistance"] = SpawnHotkeyDistance,
-                    ["SpawnHotkeyFriendly"] = SpawnHotkeyFriendly,
+                    ["SpawnBindings"] = spawnBinds,
                     ["RestoreSettings"] = RestoreSettings,
                     ["Features"] = feats
                 };

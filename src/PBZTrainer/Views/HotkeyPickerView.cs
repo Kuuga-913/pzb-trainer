@@ -148,9 +148,17 @@ namespace PBZTrainer.Views
             _panelValue.Text = string.IsNullOrEmpty(_state.PanelToggleHotkey)
                 ? "未绑定"
                 : _state.PanelToggleHotkey;
-            _spawnValue.Text = string.IsNullOrEmpty(_state.SpawnHotkey)
-                ? "未绑定（在「生成怪物」页选择怪物后绑定）"
-                : $"{_state.SpawnHotkey} → {_state.SpawnHotkeyName} ×{_state.SpawnHotkeyCount}";
+            var parts = new List<string>();
+            int n = 0;
+            foreach (var kv in _state.SpawnBindings)
+            {
+                if (string.IsNullOrEmpty(kv.Value?.Hotkey)) continue;
+                n++;
+                if (parts.Count < 5) parts.Add($"{kv.Value.Hotkey} {kv.Value.Name}");
+            }
+            _spawnValue.Text = n == 0
+                ? "未绑定（在「生成怪物」页选中怪物后绑定，可绑多个）"
+                : $"已绑定 {n} 个：{string.Join("、", parts)}" + (n > 5 ? " 等" : "");
         }
 
         private void TogglePanelPicker()

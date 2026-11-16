@@ -872,9 +872,16 @@ namespace PBZTrainer.Views
                 PanelKeyHint.Text = "未设置显隐热键";
             }
 
-            if (!string.IsNullOrEmpty(_state?.SpawnHotkey) && !string.IsNullOrEmpty(_state.SpawnHotkeyId))
+            // 每个怪物各自的热键，可同时注册多条
+            if (_state != null)
             {
-                _hotkeys.Register(_state.SpawnHotkey, () => Dispatcher.BeginInvoke(new Action(() => _ = SpawnByHotkeyAsync())));
+                foreach (var kv in _state.SpawnBindings)
+                {
+                    if (string.IsNullOrEmpty(kv.Value?.Hotkey)) continue;
+                    string targetId = kv.Key;
+                    _hotkeys.Register(kv.Value.Hotkey,
+                        () => Dispatcher.BeginInvoke(new Action(() => _ = SpawnByHotkeyAsync(targetId))));
+                }
             }
 
             foreach (var vm in _all)
@@ -889,19 +896,27 @@ namespace PBZTrainer.Views
             }
         }
 
-        /// <summary>按已绑定的热键直接生成上次选中的怪物。</summary>
-        private async Task SpawnByHotkeyAsync()
+        /// <summary>按热键生成指定的怪物（每个怪物用自己的数量 / 距离 / 阵营）。</summary>
+        private async Task SpawnByHotkeyAsync(string id)
         {
             if (!_bridge.IsConnected) { ShowToast("请先连接游戏"); return; }
-            if (string.IsNullOrEmpty(_state?.SpawnHotkeyId)) { ShowToast("还没有绑定生成热键"); return; }
+            if (_state == null || string.IsNullOrEmpty(id)) return;
+
+            if (!_state.SpawnBindings.TryGetValue(id, out var b) || string.IsNullOrEmpty(b.Hotkey))
+            {
+                ShowToast("这个怪物还没绑定热键");
+                return;
+            }
 
             try
             {
-                int count = Math.Clamp(_state.SpawnHotkeyCount, 1, 10);
-                var r = await _bridge.SpawnAsync(_state.SpawnHotkeyId, count, _state.SpawnHotkeyDistance, _state.SpawnHotkeyFriendly);
+                int count = Math.Clamp(b.Count <= 0 ? 1 : b.Count, 1, 10);
+                int distance = b.Distance <= 0 ? 800 : b.Distance;
+                var r = await _bridge.SpawnAsync(id, count, distance, b.Friendly);
                 bool ok = r != null && r.Flag("ok");
+                string name = string.IsNullOrEmpty(b.Name) ? id : b.Name;
                 ShowToast(ok
-                    ? $"已生成 {_state.SpawnHotkeyName} ×{count}"
+                    ? $"已生成 {name} ×{count}"
                     : "生成失败：" + (r?.Str("message") ?? "游戏未响应"));
             }
             catch (Exception ex)
