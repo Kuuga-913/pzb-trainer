@@ -252,7 +252,8 @@
     "attributes": [
       "MindDustAdditiveMultiplier"
     ],
-    "op": 1
+    "op": 1,
+    "description": "开启后，获取意识尘埃、饰品打磨材料（污秽残晶/提纯靛晶）、药水升级记忆、主武器锻造金属与溶剂、影之武装升级材料（异铜/魔火炭/齿轮/古木/香灰）时按设定倍率增幅获取数量。"
   },
   {
     "id": "dust_set",

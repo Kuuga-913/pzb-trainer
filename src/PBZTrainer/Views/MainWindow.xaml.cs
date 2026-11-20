@@ -38,6 +38,7 @@ namespace PBZTrainer.Views
         private readonly ObservableCollection<FeatureVm> _visible = new();
         private readonly BridgeClient _bridge = new();
         private readonly OverlayService _overlay;
+        private readonly MaterialMultiplierService _multiplierService;
         private readonly HotkeyService _hotkeys = new();
         private readonly DispatcherTimer _poll = new() { Interval = TimeSpan.FromSeconds(2) };
         private readonly DispatcherTimer _saveTimer = new() { Interval = TimeSpan.FromMilliseconds(600) };
@@ -58,6 +59,7 @@ namespace PBZTrainer.Views
             InitializeComponent();
 
             _overlay = new OverlayService(_bridge);
+            _multiplierService = new MaterialMultiplierService(_bridge);
 
             _bridge.Changed += () => Dispatcher.BeginInvoke(new Action(RefreshStatus));
             _poll.Tick += async (_, __) => await PollAsync();
@@ -173,7 +175,15 @@ namespace PBZTrainer.Views
                     _views.Clear();
                     if (PageHost.Visibility == Visibility.Visible && !IsFeatureTab(_tab))
                         PageHost.Content = GetView(_tab);
-                    Sync(() => _bridge.ApplyStates(_all));
+                    Sync(() =>
+                    {
+                        _bridge.ApplyStates(_all);
+                        var dustVm = _all.FirstOrDefault(x => x.Id == "dust_gain");
+                        if (dustVm != null && dustVm.IsEnabled)
+                            _multiplierService.Start(dustVm.NumericValue);
+                        else
+                            _multiplierService.Stop();
+                    });
                     RebuildHotkeys();
                     ShowToast(_bridge.GateOk
                         ? "已连接游戏 · " + (_bridge.Ready ? "角色状态就绪" : "请进入存档")
@@ -270,6 +280,7 @@ namespace PBZTrainer.Views
                 }
                 catch
                 {
+                    _multiplierService.Stop();
                     _bridge.Disconnect();
                     RefreshStatus();
                 }
@@ -836,6 +847,14 @@ namespace PBZTrainer.Views
                 });
                 await _bridge.RefreshAsync();
                 Sync(() => _bridge.ApplyStates(_all));
+
+                if (vm.Id == "dust_gain")
+                {
+                    if (vm.IsEnabled)
+                        _multiplierService.Start(vm.NumericValue);
+                    else
+                        _multiplierService.Stop();
+                }
             }
             catch (Exception ex)
             {
@@ -1098,6 +1117,7 @@ namespace PBZTrainer.Views
             {
                 _poll.Stop();
                 _overlay.StopAll();
+                _multiplierService.Dispose();
                 SaveState();
                 _hotkeys.Dispose();
                 _bridge.Dispose();
